@@ -22,9 +22,9 @@ export default function Home() {
       {/* Page container */}
       <div className="flex h-screen w-full flex-col">
         {/* Header */}
-        <div className="inline-flex h-16 w-full flex-col items-start justify-start border-b border-gray-200">
-          <div className="inline-flex items-center justify-start self-stretch px-8 py-4">
-            <div className="flex items-center justify-start">
+        <div className="flex h-16 w-full flex-col items-start justify-start border-b border-gray-200">
+          <div className="flex items-center justify-start self-stretch px-8 py-4">
+            <div className="flex items-center justify-start gap-2">
               <svg
                 className="relative h-6 w-6 text-gray-800 opacity-30 dark:text-white"
                 aria-hidden="true"
@@ -41,20 +41,20 @@ export default function Home() {
                   d="M5 4 1 8l4 4m10-8 4 4-4 4M11 1 9 15"
                 />{" "}
               </svg>
-              <div className=" text-xl font-bold text-gray-900">Restly</div>
+              <div className="text-xl font-bold text-gray-900">Restly</div>
             </div>
           </div>
         </div>
         {/* Body container */}
-        <div className="inline-flex w-full flex-1 flex-col justify-start gap-8 px-8 py-4">
+        <div className="flex w-full flex-1 flex-col justify-start gap-8 px-8 py-4">
           {/* Description */}
-          <div className="inline-flex flex-col justify-start">
-            <div className="inline-flex items-start justify-start self-stretch">
+          <div className="flex flex-col justify-start">
+            <div className="flex items-start justify-start self-stretch">
               <h1 className="text-2xl font-bold text-gray-900">
                 Magic Tutorial Creator
               </h1>
             </div>
-            <div className="inline-flex items-start justify-start self-stretch">
+            <div className="flex items-start justify-start self-stretch">
               <div className="text-lg font-normal text-gray-900">
                 We use AI to generate a user-friendly tutorial for your API.
                 Just input your OpenAPI spec and your goals for the tutorial,
@@ -63,9 +63,9 @@ export default function Home() {
             </div>
           </div>
           {/* Two column layout */}
-          <div className="inline-flex h-full flex-col justify-start gap-16 md:flex-row">
+          <div className="flex h-full flex-col justify-start gap-16 md:flex-row">
             {/* Column 1 */}
-            <div className="inline-flex w-full flex-col items-start justify-start gap-4 overflow-auto md:w-1/3">
+            <div className="flex w-full flex-col items-start justify-start gap-4 overflow-auto md:w-1/3">
               <h2 className="text-2xl font-bold text-gray-900">Instructions</h2>
               <div className="flex flex-col items-start justify-start gap-4 self-stretch">
                 <h3 className="text-lg font-bold text-gray-900">
@@ -91,7 +91,7 @@ export default function Home() {
               <h2 className="text-2xl font-bold text-gray-900">
                 Generated Tutorial
               </h2>
-              <div className="inline-flex items-start justify-start self-stretch">
+              <div className="flex items-start justify-start self-stretch">
                 <div className="text-md text-gray-900">
                   Here&apos;s the tutorial we generated for you using magic!
                 </div>
