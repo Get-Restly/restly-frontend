@@ -23,8 +23,8 @@ export default function Home() {
       <div className="flex h-screen w-full flex-col">
         {/* Header */}
         <div className="inline-flex h-16 w-full flex-col items-start justify-start border-b border-gray-200">
-          <div className="inline-flex items-center justify-start gap-8 self-stretch px-8 py-4">
-            <div className="flex items-center justify-start gap-3">
+          <div className="inline-flex items-center justify-start self-stretch px-8 py-4">
+            <div className="flex items-center justify-start">
               <svg
                 className="relative h-6 w-6 text-gray-800 opacity-30 dark:text-white"
                 aria-hidden="true"
