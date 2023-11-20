@@ -1,14 +1,11 @@
-import { signIn, signOut, useSession } from "next-auth/react";
+// import { signIn, signOut, useSession } from "next-auth/react";
 import Head from "next/head";
-import Link from "next/link";
 import APIPicker from "~/components/APIPicker";
 import GoalsForm from "~/components/GoalsForm";
 import MarkdownEditor from "~/components/MarkdownEditor";
-import MarkdownPreviewSwitcher from "~/components/MarkdownPreviewSwitcher";
-import MarkdownRenderer from "~/components/MarkdownRenderer";
 import IngestOpenAISpec from "~/components/OpenAPISpecForm";
 
-import { api } from "~/utils/api";
+// import { api } from "~/utils/api";
 // import { Navbar } from "flowbite-react";
 
 export default function Home() {
@@ -61,7 +58,7 @@ export default function Home() {
               <div className="text-lg font-normal text-gray-900">
                 We use AI to generate a user-friendly tutorial for your API.
                 Just input your OpenAPI spec and your goals for the tutorial,
-                and we'll do the rest!
+                and we&apos;ll do the rest!
               </div>
             </div>
           </div>
@@ -96,7 +93,7 @@ export default function Home() {
               </h2>
               <div className="inline-flex items-start justify-start self-stretch">
                 <div className="text-md text-gray-900">
-                  Here's the tutorial we generated for you using magic!
+                  Here&apos;s the tutorial we generated for you using magic!
                 </div>
               </div>
               <div className="h-96 w-full overflow-auto md:flex-1">
@@ -110,26 +107,26 @@ export default function Home() {
   );
 }
 
-function AuthShowcase() {
-  const { data: sessionData } = useSession();
+// function AuthShowcase() {
+//   const { data: sessionData } = useSession();
 
-  const { data: secretMessage } = api.post.getSecretMessage.useQuery(
-    undefined, // no input
-    { enabled: sessionData?.user !== undefined },
-  );
+//   const { data: secretMessage } = api.post.getSecretMessage.useQuery(
+//     undefined, // no input
+//     { enabled: sessionData?.user !== undefined },
+//   );
 
-  return (
-    <div className="flex flex-col items-center justify-center gap-4">
-      <p className="text-center text-2xl text-white">
-        {sessionData && <span>Logged in as {sessionData.user?.name}</span>}
-        {secretMessage && <span> - {secretMessage}</span>}
-      </p>
-      <button
-        className="rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
-        onClick={sessionData ? () => void signOut() : () => void signIn()}
-      >
-        {sessionData ? "Sign out" : "Sign in"}
-      </button>
-    </div>
-  );
-}
+//   return (
+//     <div className="flex flex-col items-center justify-center gap-4">
+//       <p className="text-center text-2xl text-white">
+//         {sessionData && <span>Logged in as {sessionData.user?.name}</span>}
+//         {secretMessage && <span> - {secretMessage}</span>}
+//       </p>
+//       <button
+//         className="rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
+//         onClick={sessionData ? () => void signOut() : () => void signIn()}
+//       >
+//         {sessionData ? "Sign out" : "Sign in"}
+//       </button>
+//     </div>
+//   );
+// }

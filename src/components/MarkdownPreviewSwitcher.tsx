@@ -3,13 +3,17 @@
 import React from "react";
 import { Button } from "flowbite-react";
 
-const ActiveTab = (props: any) => (
+type ButtonProps = React.ComponentProps<typeof Button> & {
+  children: React.ReactNode;
+};
+
+const ActiveTab = (props: ButtonProps) => (
   <Button color="blue" className="focus:ring-1 focus:ring-gray-200" {...props}>
     {props.children}
   </Button>
 );
 
-const InactiveTab = (props: any) => (
+const InactiveTab = (props: ButtonProps) => (
   <Button
     color="gray"
     className="hover:text-gray-900 focus:ring-1 focus:ring-gray-200"

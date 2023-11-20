@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Label, TextInput, Textarea } from "flowbite-react";
+import { Button, Label, Textarea } from "flowbite-react";
 
 function GoalsForm() {
   return (

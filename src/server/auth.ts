@@ -5,9 +5,9 @@ import {
   type DefaultSession,
   type NextAuthOptions,
 } from "next-auth";
-import DiscordProvider from "next-auth/providers/discord";
+// import DiscordProvider from "next-auth/providers/discord";
 
-import { env } from "~/env.mjs";
+// import { env } from "~/env.mjs";
 import { db } from "~/server/db";
 
 /**
