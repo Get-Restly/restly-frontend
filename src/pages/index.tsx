@@ -1,9 +1,10 @@
 // import { signIn, signOut, useSession } from "next-auth/react";
+import React, {useState} from "react";
 import Head from "next/head";
 import APIPicker from "~/components/APIPicker";
 import GoalsForm from "~/components/GoalsForm";
 import MarkdownEditor from "~/components/MarkdownEditor";
-import IngestOpenAISpec from "~/components/OpenAPISpecForm";
+import SelectApiSpec from "~/components/SelectApiSpec";
 
 // import { api } from "~/utils/api";
 // import { Navbar } from "flowbite-react";
@@ -11,6 +12,9 @@ import IngestOpenAISpec from "~/components/OpenAPISpecForm";
 export default function Home() {
   // const hello = api.post.hello.useQuery({ text: "from tRPC" });
   // const fakeMarkdown =
+
+  const [apiSpecId, setApiSpecId] = useState<number | undefined>();
+  const [goalsText, setGoalsText] = useState<string>("");
 
   return (
     <>
@@ -35,9 +39,9 @@ export default function Home() {
                 {" "}
                 <path
                   stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
                   d="M5 4 1 8l4 4m10-8 4 4-4 4M11 1 9 15"
                 />{" "}
               </svg>
@@ -69,15 +73,15 @@ export default function Home() {
               <h2 className="text-2xl font-bold text-gray-900">Instructions</h2>
               <div className="flex flex-col items-start justify-start gap-4 self-stretch">
                 <h3 className="text-lg font-bold text-gray-900">
-                  Step 1: Input your OpenAPI Spec
+                  Step 1: Select your OpenAPI Spec
                 </h3>
-                <IngestOpenAISpec />
+                <SelectApiSpec value={apiSpecId} onSelect={setApiSpecId} />
               </div>
               <div className="flex flex-col items-start justify-start gap-4 self-stretch">
                 <h3 className="text-lg font-bold text-gray-900">
                   Step 2: Write your goals for the tutorial
                 </h3>
-                <GoalsForm />
+                <GoalsForm value={goalsText} onConfirm={setGoalsText} />
               </div>
               <div className="flex flex-col items-start justify-start gap-4 self-stretch">
                 <h3 className="text-lg font-bold text-gray-900">
