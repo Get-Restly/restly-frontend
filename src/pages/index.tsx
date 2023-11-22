@@ -87,16 +87,16 @@ export default function Home() {
               </div>
             </div>
             {/* Column 2 */}
-            <div className="flex w-full flex-col items-start justify-start gap-4 self-stretch overflow-hidden md:flex-1">
+            <div className="flex w-full flex-col items-start justify-start gap-4 self-stretch md:flex-1">
               <h2 className="text-2xl font-bold text-gray-900">
                 Generated Tutorial
               </h2>
-              <div className="flex items-start justify-start self-stretch">
+              <div className="flex self-stretch">
                 <div className="text-md text-gray-900">
                   Here&apos;s the tutorial we generated for you using magic!
                 </div>
               </div>
-              <div className="h-96 w-full overflow-auto md:flex-1">
+              <div className="h-96 w-full md:flex-1">
                 <MarkdownEditor text={"# Hello Editor"} />
               </div>
             </div>
