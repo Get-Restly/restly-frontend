@@ -3,15 +3,24 @@
 import React, {FC, useMemo} from "react";
 import { Button, Select } from "flowbite-react";
 import { OpenApiSpec, ApiEndpoint, extractApiEndpoints } from "~/types";
+import LoadingSpinner from "./LoadingSpinner";
+import { SparklesIcon } from "@heroicons/react/24/outline";
 
 interface ApiPickerProps {
   spec?: OpenApiSpec;
   value: ApiEndpoint[];
   onChange: (value: ApiEndpoint[]) => void;
   onAutoSelect: () => void;
+  autoSelectLoading?: boolean;
 }
 
-const ApiPicker: FC<ApiPickerProps> = ({spec, value, onChange, onAutoSelect}) => {
+const ApiPicker: FC<ApiPickerProps> = ({
+  spec, 
+  value, 
+  onChange, 
+  onAutoSelect,
+  autoSelectLoading,
+}) => {
   const endpoints = useMemo(() => spec?.paths ? extractApiEndpoints(spec) : [], [spec]);
   
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -23,10 +32,17 @@ const ApiPicker: FC<ApiPickerProps> = ({spec, value, onChange, onAutoSelect}) =>
     onChange(selectedEndpoints);
   }
 
+  const autoSelectText = autoSelectLoading ? "Loading..." : "Auto Select";
+
+  const selectValue = useMemo(() => {
+    return value.map((endpoint) => `${endpoint.path}#${endpoint.verb.toLowerCase()}`);
+  }, [value]);
+
   return (
     <div className="flex w-full flex-col gap-4 px-2">
-      <Button color="gray" onClick={() => onAutoSelect()}>
-        Auto select
+      <Button color="gray" onClick={() => onAutoSelect()} disabled={autoSelectLoading}>
+        {autoSelectLoading ? (<LoadingSpinner />) : <SparklesIcon className="w-5 h-5 mx-1" />}
+        <span>{autoSelectText}</span>
       </Button>
       <div>
         <Select
@@ -35,12 +51,12 @@ const ApiPicker: FC<ApiPickerProps> = ({spec, value, onChange, onAutoSelect}) =>
           multiple
           className="focus:ring-1 focus:ring-gray-200"
           onChange={handleChange}
-          value={value.map((endpoint) => `${endpoint.path}#${endpoint.verb}`)}
+          value={selectValue}
           size={Math.min(12, endpoints.length)}
         >
           {endpoints.map((endpoint) => (
             <option 
-              key={`${endpoint.path}-${endpoint.verb}`}
+              key={`${endpoint.path}#${endpoint.verb}`}
               value={`${endpoint.path}#${endpoint.verb}`}
             >
               {endpoint.path} {endpoint.verb.toUpperCase()}

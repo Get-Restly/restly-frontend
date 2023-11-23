@@ -32,7 +32,7 @@ const SelectApiSpec: FC<SelectApiSpecProps> = ({ value, onSelect }) => {
   return (
     <div className="flex flex-col gap-4 w-full px-2">
       <Select value={value} onChange={handleSelect}>
-        <option key={0} value={undefined}>Select Spec</option>
+        <option key={0} value={undefined}>Select</option>
         {specs.map(spec => (
           <option key={spec.id} value={spec.id}>{spec.name}</option>
         ))}

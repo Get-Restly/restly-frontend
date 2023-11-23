@@ -1,5 +1,5 @@
 // import { signIn, signOut, useSession } from "next-auth/react";
-import React, {useEffect, useMemo, useState} from "react";
+import React, {useEffect, useState} from "react";
 import Head from "next/head";
 import { Button } from "flowbite-react";
 import ApiPicker from "~/components/ApiPicker";
@@ -8,7 +8,8 @@ import MarkdownEditor from "~/components/MarkdownEditor";
 import SelectApiSpec from "~/components/SelectApiSpec";
 import { ApiSpec, OpenApiSpec, ApiEndpoint } from "~/types";
 import { createTutorial, loadTutorials, generateTutorialContent, loadSpec, loadRelevantApis } from "~/api";
-
+import { SparklesIcon } from "@heroicons/react/24/solid";
+import LoadingSpinner from "~/components/LoadingSpinner";
 
 const DEFAULT_MARKDOWN = `# Hello Editor`;
 const DEFAULT_TUTORIAL_NAME = "Draft Tutorial";
@@ -22,6 +23,8 @@ export default function Home() {
   const [selectedApiEndpoints, setSelectedApiEndpoints] = useState<ApiEndpoint[]>([]);
   const [tutorialId, setTutorialId] = useState<number | undefined>();
   const [tutorialContent, setTutorialContent] = useState<string>(DEFAULT_MARKDOWN);
+  const [autoSelectApiLoading, setAutoSelectApiLoading] = useState<boolean>(false);
+  const [generatingTutorial, setGeneratingTutorial] = useState<boolean>(false);
 
   useEffect(() => {
     const loadCurrentTutorial = async () => {
@@ -55,8 +58,13 @@ export default function Home() {
     if (!apiSpecId) {
       throw new Error("API Spec ID not set");
     }
-    const relevantApis = await loadRelevantApis(apiSpecId, goalsText);
-    setSelectedApiEndpoints(relevantApis);
+    try {
+      setAutoSelectApiLoading(true);
+      const relevantApis = await loadRelevantApis(apiSpecId, goalsText);
+      setSelectedApiEndpoints(relevantApis);
+    } finally {
+      setAutoSelectApiLoading(false);
+    }
   }
 
   const generateTutorial = async () => {
@@ -66,9 +74,13 @@ export default function Home() {
     if (!apiSpecId) {
       throw new Error("API Spec ID not set");
     }
-    const content = await generateTutorialContent(tutorialId, goalsText, apiSpecId, selectedApiEndpoints);
-    console.log(content);
-    setTutorialContent(content);
+    try {
+      setGeneratingTutorial(true);
+      const content = await generateTutorialContent(tutorialId, goalsText, apiSpecId, selectedApiEndpoints);
+      setTutorialContent(content);
+    } finally {
+      setGeneratingTutorial(false);
+    }
   }
 
   return (
@@ -100,40 +112,33 @@ export default function Home() {
                   d="M5 4 1 8l4 4m10-8 4 4-4 4M11 1 9 15"
                 />{" "}
               </svg>
-              <div className="text-xl font-bold text-gray-900">Restly</div>
+              <div className="text-xl font-bold px-2">Restly</div>
             </div>
           </div>
         </div>
         {/* Body container */}
         <div className="flex w-full flex-1 flex-col justify-start gap-8 px-8 py-4">
-          {/* Description */}
-          <div className="flex flex-col justify-start">
-            <div className="flex items-start justify-start self-stretch">
-              <h1 className="text-2xl font-bold text-gray-900">
-                Magic Tutorial Creator
-              </h1>
-            </div>
-            <div className="flex items-start justify-start self-stretch">
-              <div className="text-lg font-normal text-gray-900">
-                We use AI to generate a user-friendly tutorial for your API.
-                Just input your OpenAPI spec and your goals for the tutorial,
-                and we&apos;ll do the rest!
-              </div>
-            </div>
-          </div>
           {/* Two column layout */}
           <div className="flex h-full flex-col justify-start gap-16 md:flex-row">
             {/* Column 1 */}
             <div className="flex w-full flex-col items-start justify-start gap-4 overflow-auto md:w-1/3">
-              <h2 className="text-2xl font-bold text-gray-900">Instructions</h2>
+              <h1 className="text-xl font-bold">
+                Magic Tutorial Creator
+              </h1>
+              <div className="text-md">
+                We use AI to generate a user-friendly tutorial for your API.
+                Just input your OpenAPI spec and your goals for the tutorial,
+                and we&apos;ll do the rest!
+              </div>
+              <h2 className="text-xl font-bold">Instructions</h2>
               <div className="flex flex-col items-start justify-start gap-4 self-stretch">
-                <h3 className="text-lg font-bold text-gray-900">
+                <h3 className="text-md font-bold">
                   Step 1: Select your OpenAPI Spec
                 </h3>
                 <SelectApiSpec value={apiSpecId} onSelect={setApiSpecId} />
               </div>
               <div className="flex flex-col items-start justify-start gap-4 self-stretch">
-                <h3 className="text-lg font-bold text-gray-900">
+                <h3 className="text-md font-bold">
                   Step 2: Write your goals for the tutorial
                 </h3>
                 <GoalsForm
@@ -142,7 +147,7 @@ export default function Home() {
                 />
               </div>
               <div className="flex flex-col items-start justify-start gap-4 self-stretch">
-                <h3 className="text-lg font-bold text-gray-900">
+                <h3 className="text-md font-bold">
                   Step 3: Pick relevant APIs
                 </h3>
                 <ApiPicker
@@ -150,6 +155,7 @@ export default function Home() {
                   value={selectedApiEndpoints}
                   onChange={setSelectedApiEndpoints}
                   onAutoSelect={autoSelectApis}
+                  autoSelectLoading={autoSelectApiLoading}
                 />
               </div>
               <div className="flex flex-col items-center self-stretch">
@@ -160,21 +166,13 @@ export default function Home() {
                   className="focus:ring-1 focus:ring-gray-200"
                   onClick={() => generateTutorial()}
                 >
-                  Generate tutorial
+                  {generatingTutorial ? (<LoadingSpinner />) : (<SparklesIcon className="w-5 h-5 mr-1" />)}
+                  <span className="text-lg">{generatingTutorial ? "Generating..." : "Generate tutorial"}</span>
                 </Button>
-                {JSON.stringify(selectedApiEndpoints)}
               </div>
             </div>
             {/* Column 2 */}
             <div className="flex w-full flex-col items-start justify-start gap-4 self-stretch md:flex-1">
-              <h2 className="text-2xl font-bold text-gray-900">
-                Generated Tutorial
-              </h2>
-              <div className="flex self-stretch">
-                <div className="text-md text-gray-900">
-                  Here&apos;s the tutorial we generated for you using magic!
-                </div>
-              </div>
               <div className="h-96 w-full md:flex-1">
                 <MarkdownEditor text={tutorialContent} setText={setTutorialContent} />
               </div>
