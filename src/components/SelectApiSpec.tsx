@@ -45,12 +45,9 @@ const SelectApiSpec: FC<SelectApiSpecProps> = ({ value, onSelect }) => {
           required
           className="w-full"
         />
-        <Button className="whitespace-nowrap" color="gray" type="submit">
-            Load spec
+        <Button className="whitespace-nowrap" color="gray">
+            Load OpenAPI Spec
         </Button>
-        <div className="flex flex-col items-end self-stretch">
-          
-        </div>
       </div>
     </div>
   );
