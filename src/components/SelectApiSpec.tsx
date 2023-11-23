@@ -5,7 +5,8 @@ import { Button, TextInput, Select } from "flowbite-react";
 import { ApiSpec } from "~/types";
 import { spec } from "node:test/reporters";
 import { cp } from "node:fs";
-import { loadSpecs } from "~/api";
+import { createSpec, loadSpecs } from "~/api";
+import LoadingSpinner from "./LoadingSpinner";
 
 interface SelectApiSpecProps {
   value: number | undefined;
@@ -14,6 +15,8 @@ interface SelectApiSpecProps {
 
 const SelectApiSpec: FC<SelectApiSpecProps> = ({ value, onSelect }) => {
   const [specs, setSpecs] = useState<ApiSpec[]>([]);
+  const [url, setUrl] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   const reloadSpecs = async () => {
     const specs = await loadSpecs();
@@ -27,6 +30,13 @@ const SelectApiSpec: FC<SelectApiSpecProps> = ({ value, onSelect }) => {
   const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     e.preventDefault();
     onSelect(parseInt(e.target.value));
+  }
+
+  const handleLoadSpec = async () => {
+    const specId = await createSpec(url);
+    await reloadSpecs();
+    onSelect(specId);
+    setUrl("");
   }
 
   return (
@@ -44,9 +54,12 @@ const SelectApiSpec: FC<SelectApiSpecProps> = ({ value, onSelect }) => {
           placeholder="Enter OpenAPI Spec URL"
           required
           className="w-full"
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
         />
-        <Button className="whitespace-nowrap" color="gray">
-            Load OpenAPI Spec
+        <Button className="whitespace-nowrap" color="gray" onClick={handleLoadSpec} disabled={loading}>
+          {loading && (<LoadingSpinner />)}
+          {loading ? "Loading.." : "Load OpenAPI Spec"}
         </Button>
       </div>
     </div>
