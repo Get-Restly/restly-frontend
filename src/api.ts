@@ -1,19 +1,29 @@
 import { ApiEndpoint, ApiSpec, Tutorial } from "./types";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:5000';
+
+interface loadSpecsResponse {
+    specs: ApiSpec[];
+}
 
 export async function loadSpecs(): Promise<ApiSpec[]> {
     const resp = await fetch(`${API_URL}/api/v1/specs`);
-    const data = await resp.json();
-    const specs = data.specs as ApiSpec[];
-    return specs;
+    const data = await resp.json() as loadSpecsResponse;
+    return data.specs;
+}
+
+interface loadSpecResponse {
+    spec: ApiSpec;
 }
 
 export async function loadSpec(id: number): Promise<ApiSpec> {
     const resp = await fetch(`${API_URL}/api/v1/specs/${id}`);
-    const data = await resp.json();
-    const spec = data.spec as ApiSpec;
-    return spec;
+    const data = await resp.json() as loadSpecResponse;
+    return data.spec;
+}
+
+interface loadRelevantApisResponse {
+    apis: ApiEndpoint[];
 }
 
 export async function loadRelevantApis(specId: number, query: string): Promise<ApiEndpoint[]> {
@@ -26,9 +36,12 @@ export async function loadRelevantApis(specId: number, query: string): Promise<A
             query,
         })
     });
-    const data = await resp.json();
-    const relevantApis = data.apis as ApiEndpoint[];
-    return relevantApis;
+    const data = await resp.json() as loadRelevantApisResponse;
+    return data.apis;
+}
+
+interface createTutorialResponse {
+    id: number;
 }
 
 export async function createTutorial(name: string): Promise<number> {
@@ -39,16 +52,23 @@ export async function createTutorial(name: string): Promise<number> {
         },
         body: JSON.stringify({ name }),
     });
-    const data = await resp.json();
+    const data = await resp.json() as createTutorialResponse;
     return data.id;
+}
+
+interface loadTutorialsResponse {
+    tutorials: Tutorial[];
 }
 
 export async function loadTutorials(): Promise<Tutorial[]> {
     const resp = await fetch(`${API_URL}/api/v1/tutorials`);
-    const data = await resp.json();
-    return data.tutorials as Tutorial[];
+    const data = await resp.json() as loadTutorialsResponse;
+    return data.tutorials;
 }
 
+interface generateTutorialContentResponse {
+    content: string;
+}
 
 export async function generateTutorialContent(
     tutorialId: number,
@@ -67,6 +87,6 @@ export async function generateTutorialContent(
             apis,
         })
     });
-    const data = await resp.json();
-    return data.content as string;
+    const data = await resp.json() as generateTutorialContentResponse;
+    return data.content;
 }
