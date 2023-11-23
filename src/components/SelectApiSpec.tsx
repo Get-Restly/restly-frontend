@@ -21,7 +21,7 @@ const SelectApiSpec: FC<SelectApiSpecProps> = ({ value, onSelect }) => {
   }
 
   useEffect(() => {
-    reloadSpecs();
+    reloadSpecs().catch(e => console.error(e));
   }, []);
 
   const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {

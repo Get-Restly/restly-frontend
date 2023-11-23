@@ -36,7 +36,7 @@ export default function Home() {
         setTutorialId(tutorialId);
       }
     }
-    loadCurrentTutorial();
+    loadCurrentTutorial().catch(e => console.error(e));
   }, []);
 
   useEffect(() => {
@@ -51,7 +51,7 @@ export default function Home() {
         setOpenApiSpec(openApiSpec);
       }
     }
-    reloadSpec();
+    reloadSpec().catch(e => console.error(e));
   }, [apiSpecId]);
 
   const autoSelectApis = async () => {
