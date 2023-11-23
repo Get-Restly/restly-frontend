@@ -1,13 +1,13 @@
-import React, { useState } from "react";
+import React, { FC } from "react";
 import { MdEditor } from "md-editor-rt";
 import "md-editor-rt/lib/style.css";
 
-type Props = {
+type MarkdownEditorProps = {
   text: string;
+  setText: (text: string) => void;
 };
 
-const MarkdownEditor = (props: Props) => {
-  const [text, setText] = useState(props.text);
+const MarkdownEditor: FC<MarkdownEditorProps> = ({ text, setText }) => {
   return <MdEditor modelValue={text} onChange={setText} language="en-US" />;
 };
 

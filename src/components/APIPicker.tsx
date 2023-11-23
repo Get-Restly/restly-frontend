@@ -30,12 +30,13 @@ const ApiPicker: FC<ApiPickerProps> = ({spec, value, onChange, onAutoSelect}) =>
       </Button>
       <div>
         <Select
-          id="countries"
+          id="api-endpoints"
           required
           multiple
           className="focus:ring-1 focus:ring-gray-200"
           onChange={handleChange}
           value={value.map((endpoint) => `${endpoint.path}#${endpoint.verb}`)}
+          size={Math.min(12, endpoints.length)}
         >
           {endpoints.map((endpoint) => (
             <option 

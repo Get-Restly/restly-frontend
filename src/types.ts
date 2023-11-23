@@ -14,6 +14,13 @@ export interface ApiSpec {
   content?: string;
 }
 
+export interface Tutorial {
+  id: number;
+  name: string;
+  input?: string;
+  content?: string;
+}
+
 export function extractApiEndpoints(spec: OpenApiSpec): ApiEndpoint[] {
   const endpoints: ApiEndpoint[] = [];
   for (const path of Object.keys(spec.paths)) {

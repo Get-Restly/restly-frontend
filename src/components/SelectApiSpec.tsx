@@ -1,12 +1,11 @@
 "use client";
 
 import React, {FC, useEffect, useState} from "react";
-import { Button, Label, TextInput, Select } from "flowbite-react";
+import { Button, TextInput, Select } from "flowbite-react";
 import { ApiSpec } from "~/types";
 import { spec } from "node:test/reporters";
 import { cp } from "node:fs";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+import { loadSpecs } from "~/api";
 
 interface SelectApiSpecProps {
   value: number | undefined;
@@ -16,15 +15,13 @@ interface SelectApiSpecProps {
 const SelectApiSpec: FC<SelectApiSpecProps> = ({ value, onSelect }) => {
   const [specs, setSpecs] = useState<ApiSpec[]>([]);
 
-  const loadSpecs = async () => {
-    const response = await fetch(`${API_URL}/api/v1/specs`);
-    const specsResp = await response.json();
-    const specs = specsResp.specs;
+  const reloadSpecs = async () => {
+    const specs = await loadSpecs();
     setSpecs(specs);
   }
 
   useEffect(() => {
-    loadSpecs();
+    reloadSpecs();
   }, []);
 
   const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {

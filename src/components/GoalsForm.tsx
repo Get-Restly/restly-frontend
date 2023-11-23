@@ -18,7 +18,7 @@ const GoalsForm: FC<GoalsFormProps> = ({ value, onChange }) => {
       <Textarea
         id="goals"
         placeholder="Help me write a tutorial for an e-commerce store XYZ"
-        rows={4}
+        rows={12}
         required
         value={value}
         onChange={handleTextChange}

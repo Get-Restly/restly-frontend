@@ -6,68 +6,69 @@ import ApiPicker from "~/components/ApiPicker";
 import GoalsForm from "~/components/GoalsForm";
 import MarkdownEditor from "~/components/MarkdownEditor";
 import SelectApiSpec from "~/components/SelectApiSpec";
-import { ApiSpec, OpenApiSpec, ApiEndpoint, extractApiEndpoints } from "~/types";
+import { ApiSpec, OpenApiSpec, ApiEndpoint } from "~/types";
+import { createTutorial, loadTutorials, generateTutorialContent, loadSpec, loadRelevantApis } from "~/api";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
 
-// import { api } from "~/utils/api";
-// import { Navbar } from "flowbite-react";
+const DEFAULT_MARKDOWN = `# Hello Editor`;
+const DEFAULT_TUTORIAL_NAME = "Draft Tutorial";
+
 
 export default function Home() {
-  // const hello = api.post.hello.useQuery({ text: "from tRPC" });
-  // const fakeMarkdown =
-
   const [apiSpecId, setApiSpecId] = useState<number | undefined>();
   const [goalsText, setGoalsText] = useState<string>("");
   const [apiSpec, setApiSpec] = useState<ApiSpec | undefined>();
   const [openApiSpec, setOpenApiSpec] = useState<OpenApiSpec | undefined>();
   const [selectedApiEndpoints, setSelectedApiEndpoints] = useState<ApiEndpoint[]>([]);
   const [tutorialId, setTutorialId] = useState<number | undefined>();
+  const [tutorialContent, setTutorialContent] = useState<string>(DEFAULT_MARKDOWN);
 
   useEffect(() => {
-    const loadSpec = async () => {
-      const resp = await fetch(`${API_URL}/api/v1/specs/${apiSpecId}`);
-      const data = await resp.json();
-      const spec = data.spec as ApiSpec;
+    const loadCurrentTutorial = async () => {
+      const tutorials = await loadTutorials();
+      if (tutorials.length > 0 && tutorials[0]) {
+        setTutorialId(tutorials[0].id);
+      } else {
+        const tutorialId = await createTutorial(DEFAULT_TUTORIAL_NAME);
+        setTutorialId(tutorialId);
+      }
+    }
+    loadCurrentTutorial();
+  }, []);
+
+  useEffect(() => {
+    const reloadSpec = async () => {
+      if (!apiSpecId) {
+        return;
+      }
+      const spec = await loadSpec(apiSpecId);
       setApiSpec(spec);
       if (spec.content) {
         const openApiSpec = JSON.parse(spec.content) as OpenApiSpec;
         setOpenApiSpec(openApiSpec);
       }
     }
-    if (apiSpecId) {
-      loadSpec();
-    }
+    reloadSpec();
   }, [apiSpecId]);
 
   const autoSelectApis = async () => {
-    const resp = await fetch(`${API_URL}/api/v1/specs/${apiSpecId}/relevant-apis`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        query: goalsText
-      })
-    });
-    const data = await resp.json();
-    const relevantApis = data.apis as ApiEndpoint[];
+    if (!apiSpecId) {
+      throw new Error("API Spec ID not set");
+    }
+    const relevantApis = await loadRelevantApis(apiSpecId, goalsText);
     setSelectedApiEndpoints(relevantApis);
   }
 
   const generateTutorial = async () => {
-    const resp = await fetch(`${API_URL}/api/v1/tutorials/${tutorialId}/generate-content`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        query: goalsText
-      })
-    });
-    const data = await resp.json();
-    const relevantApis = data.apis as ApiEndpoint[];
-    setSelectedApiEndpoints(relevantApis);
+    if (!tutorialId) {
+      throw new Error("Tutorial ID not set");
+    }
+    if (!apiSpecId) {
+      throw new Error("API Spec ID not set");
+    }
+    const content = await generateTutorialContent(tutorialId, goalsText, apiSpecId, selectedApiEndpoints);
+    console.log(content);
+    setTutorialContent(content);
   }
 
   return (
@@ -161,6 +162,7 @@ export default function Home() {
                 >
                   Generate tutorial
                 </Button>
+                {JSON.stringify(selectedApiEndpoints)}
               </div>
             </div>
             {/* Column 2 */}
@@ -174,7 +176,7 @@ export default function Home() {
                 </div>
               </div>
               <div className="h-96 w-full md:flex-1">
-                <MarkdownEditor text={"# Hello Editor"} />
+                <MarkdownEditor text={tutorialContent} setText={setTutorialContent} />
               </div>
             </div>
           </div>
