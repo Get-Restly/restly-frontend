@@ -1,27 +1,29 @@
 "use client";
 
-import { Button, Label, Textarea } from "flowbite-react";
+import React, {FC} from "react";
+import {Button, Textarea} from "flowbite-react";
 
-function GoalsForm() {
+interface GoalsFormProps {
+  value: string;
+  onChange: (value: string) => void;
+}
+
+const GoalsForm: FC<GoalsFormProps> = ({ value, onChange }) => {
+  const handleTextChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    onChange(event.target.value);
+  }
+
   return (
-    <form className="flex w-full flex-col gap-4">
-      <div>
-        <div className="mb-2 block">
-          <Label htmlFor="goals" value="Goals for the tutorial" />
-        </div>
-        <Textarea
-          id="goals"
-          placeholder="Help me write a tutorial for an e-commerce store XYZ"
-          rows={4}
-          required
-        />
-      </div>
-      <div className="flex flex-col items-end self-stretch">
-        <Button color="gray" type="submit">
-          Confirm goals
-        </Button>
-      </div>
-    </form>
+    <div className="flex w-full flex-col gap-4 px-2">
+      <Textarea
+        id="goals"
+        placeholder="Help me write a tutorial for an e-commerce store XYZ"
+        rows={12}
+        required
+        value={value}
+        onChange={handleTextChange}
+      />
+    </div>
   );
 }
 
