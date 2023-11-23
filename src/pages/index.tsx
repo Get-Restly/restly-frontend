@@ -1,10 +1,14 @@
 // import { signIn, signOut, useSession } from "next-auth/react";
-import React, {useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import Head from "next/head";
-import APIPicker from "~/components/APIPicker";
+import { Button } from "flowbite-react";
+import ApiPicker from "~/components/ApiPicker";
 import GoalsForm from "~/components/GoalsForm";
 import MarkdownEditor from "~/components/MarkdownEditor";
 import SelectApiSpec from "~/components/SelectApiSpec";
+import { ApiSpec, OpenApiSpec, ApiEndpoint, extractApiEndpoints } from "~/types";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
 
 // import { api } from "~/utils/api";
 // import { Navbar } from "flowbite-react";
@@ -15,6 +19,56 @@ export default function Home() {
 
   const [apiSpecId, setApiSpecId] = useState<number | undefined>();
   const [goalsText, setGoalsText] = useState<string>("");
+  const [apiSpec, setApiSpec] = useState<ApiSpec | undefined>();
+  const [openApiSpec, setOpenApiSpec] = useState<OpenApiSpec | undefined>();
+  const [selectedApiEndpoints, setSelectedApiEndpoints] = useState<ApiEndpoint[]>([]);
+  const [tutorialId, setTutorialId] = useState<number | undefined>();
+
+  useEffect(() => {
+    const loadSpec = async () => {
+      const resp = await fetch(`${API_URL}/api/v1/specs/${apiSpecId}`);
+      const data = await resp.json();
+      const spec = data.spec as ApiSpec;
+      setApiSpec(spec);
+      if (spec.content) {
+        const openApiSpec = JSON.parse(spec.content) as OpenApiSpec;
+        setOpenApiSpec(openApiSpec);
+      }
+    }
+    if (apiSpecId) {
+      loadSpec();
+    }
+  }, [apiSpecId]);
+
+  const autoSelectApis = async () => {
+    const resp = await fetch(`${API_URL}/api/v1/specs/${apiSpecId}/relevant-apis`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        query: goalsText
+      })
+    });
+    const data = await resp.json();
+    const relevantApis = data.apis as ApiEndpoint[];
+    setSelectedApiEndpoints(relevantApis);
+  }
+
+  const generateTutorial = async () => {
+    const resp = await fetch(`${API_URL}/api/v1/tutorials/${tutorialId}/generate-content`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        query: goalsText
+      })
+    });
+    const data = await resp.json();
+    const relevantApis = data.apis as ApiEndpoint[];
+    setSelectedApiEndpoints(relevantApis);
+  }
 
   return (
     <>
@@ -81,13 +135,32 @@ export default function Home() {
                 <h3 className="text-lg font-bold text-gray-900">
                   Step 2: Write your goals for the tutorial
                 </h3>
-                <GoalsForm value={goalsText} onConfirm={setGoalsText} />
+                <GoalsForm
+                  value={goalsText} 
+                  onChange={setGoalsText} 
+                />
               </div>
               <div className="flex flex-col items-start justify-start gap-4 self-stretch">
                 <h3 className="text-lg font-bold text-gray-900">
                   Step 3: Pick relevant APIs
                 </h3>
-                <APIPicker />
+                <ApiPicker
+                  spec={openApiSpec} 
+                  value={selectedApiEndpoints}
+                  onChange={setSelectedApiEndpoints}
+                  onAutoSelect={autoSelectApis}
+                />
+              </div>
+              <div className="flex flex-col items-center self-stretch">
+                <Button
+                  color="blue"
+                  type="submit"
+                  size="lg"
+                  className="focus:ring-1 focus:ring-gray-200"
+                  onClick={() => generateTutorial()}
+                >
+                  Generate tutorial
+                </Button>
               </div>
             </div>
             {/* Column 2 */}

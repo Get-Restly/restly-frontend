@@ -2,19 +2,11 @@
 
 import React, {FC, useEffect, useState} from "react";
 import { Button, Label, TextInput, Select } from "flowbite-react";
+import { ApiSpec } from "~/types";
 import { spec } from "node:test/reporters";
 import { cp } from "node:fs";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
-
-// TODO: define the actual type
-type OpenApiSpec = Record<string, any>;
-
-interface Spec {
-  id: number;
-  name: string;
-  spec?: OpenApiSpec;
-}
 
 interface SelectApiSpecProps {
   value: number | undefined;
@@ -22,7 +14,7 @@ interface SelectApiSpecProps {
 }
 
 const SelectApiSpec: FC<SelectApiSpecProps> = ({ value, onSelect }) => {
-  const [specs, setSpecs] = useState<Spec[]>([]);
+  const [specs, setSpecs] = useState<ApiSpec[]>([]);
 
   const loadSpecs = async () => {
     const response = await fetch(`${API_URL}/api/v1/specs`);
@@ -35,15 +27,17 @@ const SelectApiSpec: FC<SelectApiSpecProps> = ({ value, onSelect }) => {
     loadSpecs();
   }, []);
 
-  const handleSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    onSelect(parseInt(event.target.value));
+  const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    e.preventDefault();
+    onSelect(parseInt(e.target.value));
   }
 
   return (
     <div className="flex flex-col gap-4 w-full px-2">
-      <Select value={value} onSelect={handleSelect}>
+      <Select value={value} onChange={handleSelect}>
+        <option key={0} value={undefined}>Select Spec</option>
         {specs.map(spec => (
-          <option value={spec.id}>{spec.name}</option>
+          <option key={spec.id} value={spec.id}>{spec.name}</option>
         ))}
       </Select>
       <div className="flex w-full flex-row gap-4">
@@ -55,7 +49,7 @@ const SelectApiSpec: FC<SelectApiSpecProps> = ({ value, onSelect }) => {
           className="w-full"
         />
         <Button className="whitespace-nowrap" color="gray" type="submit">
-            Load Spec
+            Load spec
         </Button>
         <div className="flex flex-col items-end self-stretch">
           

@@ -1,39 +1,54 @@
 "use client";
 
-import { Button, Label, Select } from "flowbite-react";
+import React, {FC, useMemo} from "react";
+import { Button, Select } from "flowbite-react";
+import { OpenApiSpec, ApiEndpoint, extractApiEndpoints } from "~/types";
 
-function APIPicker() {
-  //TODO: pass in props for the options
+interface ApiPickerProps {
+  spec?: OpenApiSpec;
+  value: ApiEndpoint[];
+  onChange: (value: ApiEndpoint[]) => void;
+  onAutoSelect: () => void;
+}
+
+const ApiPicker: FC<ApiPickerProps> = ({spec, value, onChange, onAutoSelect}) => {
+  const endpoints = useMemo(() => spec?.paths ? extractApiEndpoints(spec) : [], [spec]);
+  
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selected = e.target.selectedOptions;
+    const selectedEndpoints = Array.from(selected).map((option) => {
+      const [path, verb] = option.value.split('#');
+      return endpoints.find((endpoint) => endpoint.path === path && endpoint.verb === verb);
+    }).filter(Boolean) as ApiEndpoint[];
+    onChange(selectedEndpoints);
+  }
+
   return (
-    <form className="flex w-full flex-col gap-4">
+    <div className="flex w-full flex-col gap-4 px-2">
+      <Button color="gray" onClick={() => onAutoSelect()}>
+        Auto select
+      </Button>
       <div>
-        <div className="mb-2 block">
-          <Label htmlFor="countries" value="Pick relevant API endpoints" />
-        </div>
         <Select
           id="countries"
           required
           multiple
           className="focus:ring-1 focus:ring-gray-200"
+          onChange={handleChange}
+          value={value.map((endpoint) => `${endpoint.path}#${endpoint.verb}`)}
         >
-          <option selected>United States</option>
-          <option>Canada</option>
-          <option>France</option>
-          <option>Germany</option>
+          {endpoints.map((endpoint) => (
+            <option 
+              key={`${endpoint.path}-${endpoint.verb}`}
+              value={`${endpoint.path}#${endpoint.verb}`}
+            >
+              {endpoint.path} {endpoint.verb.toUpperCase()}
+            </option>
+          ))}
         </Select>
       </div>
-      <div className="flex flex-col items-center self-stretch">
-        <Button
-          color="blue"
-          type="submit"
-          size="lg"
-          className="focus:ring-1 focus:ring-gray-200"
-        >
-          Generate tutorial
-        </Button>
-      </div>
-    </form>
+    </div>
   );
 }
 
-export default APIPicker;
+export default ApiPicker;
