@@ -1,5 +1,5 @@
 // import { signIn, signOut, useSession } from "next-auth/react";
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import { Button } from "flowbite-react";
 import ApiPicker from "~/components/ApiPicker";
@@ -7,23 +7,32 @@ import GoalsForm from "~/components/GoalsForm";
 import MarkdownEditor from "~/components/MarkdownEditor";
 import SelectApiSpec from "~/components/SelectApiSpec";
 import { ApiSpec, OpenApiSpec, ApiEndpoint } from "~/types";
-import { createTutorial, loadTutorials, generateTutorialContent, loadSpec, loadRelevantApis } from "~/api";
+import {
+  createTutorial,
+  loadTutorials,
+  generateTutorialContent,
+  loadSpec,
+  loadRelevantApis,
+} from "~/api";
 import { SparklesIcon } from "@heroicons/react/24/solid";
 import LoadingSpinner from "~/components/LoadingSpinner";
 
 const DEFAULT_MARKDOWN = `# Hello Editor`;
 const DEFAULT_TUTORIAL_NAME = "Draft Tutorial";
 
-
 export default function Home() {
   const [apiSpecId, setApiSpecId] = useState<number | undefined>();
   const [goalsText, setGoalsText] = useState<string>("");
   const [apiSpec, setApiSpec] = useState<ApiSpec | undefined>();
   const [openApiSpec, setOpenApiSpec] = useState<OpenApiSpec | undefined>();
-  const [selectedApiEndpoints, setSelectedApiEndpoints] = useState<ApiEndpoint[]>([]);
+  const [selectedApiEndpoints, setSelectedApiEndpoints] = useState<
+    ApiEndpoint[]
+  >([]);
   const [tutorialId, setTutorialId] = useState<number | undefined>();
-  const [tutorialContent, setTutorialContent] = useState<string>(DEFAULT_MARKDOWN);
-  const [autoSelectApiLoading, setAutoSelectApiLoading] = useState<boolean>(false);
+  const [tutorialContent, setTutorialContent] =
+    useState<string>(DEFAULT_MARKDOWN);
+  const [autoSelectApiLoading, setAutoSelectApiLoading] =
+    useState<boolean>(false);
   const [generatingTutorial, setGeneratingTutorial] = useState<boolean>(false);
 
   useEffect(() => {
@@ -35,8 +44,8 @@ export default function Home() {
         const tutorialId = await createTutorial(DEFAULT_TUTORIAL_NAME);
         setTutorialId(tutorialId);
       }
-    }
-    loadCurrentTutorial().catch(e => console.error(e));
+    };
+    loadCurrentTutorial().catch((e) => console.error(e));
   }, []);
 
   useEffect(() => {
@@ -50,8 +59,8 @@ export default function Home() {
         const openApiSpec = JSON.parse(spec.content) as OpenApiSpec;
         setOpenApiSpec(openApiSpec);
       }
-    }
-    reloadSpec().catch(e => console.error(e));
+    };
+    reloadSpec().catch((e) => console.error(e));
   }, [apiSpecId]);
 
   const autoSelectApis = async () => {
@@ -65,7 +74,7 @@ export default function Home() {
     } finally {
       setAutoSelectApiLoading(false);
     }
-  }
+  };
 
   const generateTutorial = async () => {
     if (!tutorialId) {
@@ -76,12 +85,17 @@ export default function Home() {
     }
     try {
       setGeneratingTutorial(true);
-      const content = await generateTutorialContent(tutorialId, goalsText, apiSpecId, selectedApiEndpoints);
+      const content = await generateTutorialContent(
+        tutorialId,
+        goalsText,
+        apiSpecId,
+        selectedApiEndpoints,
+      );
       setTutorialContent(content);
     } finally {
       setGeneratingTutorial(false);
     }
-  }
+  };
 
   return (
     <>
@@ -112,7 +126,7 @@ export default function Home() {
                   d="M5 4 1 8l4 4m10-8 4 4-4 4M11 1 9 15"
                 />{" "}
               </svg>
-              <div className="text-xl font-bold px-2">Restly</div>
+              <div className="px-2 text-xl font-bold">Restly</div>
             </div>
           </div>
         </div>
@@ -121,10 +135,8 @@ export default function Home() {
           {/* Two column layout */}
           <div className="flex h-full flex-col justify-start gap-16 md:flex-row">
             {/* Column 1 */}
-            <div className="flex w-full flex-col items-start justify-start gap-4 overflow-auto md:w-1/3">
-              <h1 className="text-xl font-bold">
-                Magic Tutorial Creator
-              </h1>
+            <div className="flex w-full flex-col items-start justify-start gap-4 md:w-1/3">
+              <h1 className="text-xl font-bold">Magic Tutorial Creator</h1>
               <div className="text-md">
                 We use AI to generate a user-friendly tutorial for your API.
                 Just input your OpenAPI spec and your goals for the tutorial,
@@ -141,17 +153,14 @@ export default function Home() {
                 <h3 className="text-md font-bold">
                   Step 2: Write your goals for the tutorial
                 </h3>
-                <GoalsForm
-                  value={goalsText} 
-                  onChange={setGoalsText} 
-                />
+                <GoalsForm value={goalsText} onChange={setGoalsText} />
               </div>
               <div className="flex flex-col items-start justify-start gap-4 self-stretch">
                 <h3 className="text-md font-bold">
                   Step 3: Pick relevant APIs
                 </h3>
                 <ApiPicker
-                  spec={openApiSpec} 
+                  spec={openApiSpec}
                   value={selectedApiEndpoints}
                   onChange={setSelectedApiEndpoints}
                   onAutoSelect={autoSelectApis}
@@ -166,15 +175,24 @@ export default function Home() {
                   className="focus:ring-1 focus:ring-gray-200"
                   onClick={() => generateTutorial()}
                 >
-                  {generatingTutorial ? (<LoadingSpinner />) : (<SparklesIcon className="w-5 h-5 mr-1" />)}
-                  <span className="text-lg">{generatingTutorial ? "Generating..." : "Generate tutorial"}</span>
+                  {generatingTutorial ? (
+                    <LoadingSpinner />
+                  ) : (
+                    <SparklesIcon className="mr-1 h-5 w-5" />
+                  )}
+                  <span className="text-lg">
+                    {generatingTutorial ? "Generating..." : "Generate tutorial"}
+                  </span>
                 </Button>
               </div>
             </div>
             {/* Column 2 */}
-            <div className="flex w-full flex-col items-start justify-start gap-4 self-stretch md:flex-1">
+            <div className="flex flex-col items-start justify-start gap-4 md:flex-1">
               <div className="h-96 w-full md:flex-1">
-                <MarkdownEditor text={tutorialContent} setText={setTutorialContent} />
+                <MarkdownEditor
+                  text={tutorialContent}
+                  setText={setTutorialContent}
+                />
               </div>
             </div>
           </div>
