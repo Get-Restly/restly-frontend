@@ -4,10 +4,16 @@
 
 body {
   background-color: white;
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
   color: #334155;
 }
 
 #md-editor-rt {
   height: 100%;
+}
+
+#md-editor-rt pre {
+  overflow-x: auto; /* Horizontal scroll for long lines */
+  white-space: pre-wrap; /* Allows text to wrap to next line */
+  word-wrap: break-word; /* Breaks long words */
 }
