@@ -1,6 +1,6 @@
 "use client";
 
-import React, {FC, useEffect, useState} from "react";
+import React, { FC, useEffect, useState } from "react";
 import { Button, TextInput, Select } from "flowbite-react";
 import { ApiSpec } from "~/types";
 import { spec } from "node:test/reporters";
@@ -21,30 +21,34 @@ const SelectApiSpec: FC<SelectApiSpecProps> = ({ value, onSelect }) => {
   const reloadSpecs = async () => {
     const specs = await loadSpecs();
     setSpecs(specs);
-  }
+  };
 
   useEffect(() => {
-    reloadSpecs().catch(e => console.error(e));
+    reloadSpecs().catch((e) => console.error(e));
   }, []);
 
   const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     e.preventDefault();
     onSelect(parseInt(e.target.value));
-  }
+  };
 
   const handleLoadSpec = async () => {
     const specId = await createSpec(url);
     await reloadSpecs();
     onSelect(specId);
     setUrl("");
-  }
+  };
 
   return (
-    <div className="flex flex-col gap-4 w-full px-2">
+    <div className="flex w-full flex-col gap-4 px-2">
       <Select value={value} onChange={handleSelect}>
-        <option key={0} value={undefined}>Select</option>
-        {specs.map(spec => (
-          <option key={spec.id} value={spec.id}>{spec.name}</option>
+        <option key={0} value={undefined}>
+          Select
+        </option>
+        {specs.map((spec) => (
+          <option key={spec.id} value={spec.id}>
+            {spec.name}
+          </option>
         ))}
       </Select>
       <div className="flex w-full flex-row gap-4">
@@ -57,13 +61,18 @@ const SelectApiSpec: FC<SelectApiSpecProps> = ({ value, onSelect }) => {
           value={url}
           onChange={(e) => setUrl(e.target.value)}
         />
-        <Button className="whitespace-nowrap" color="gray" onClick={handleLoadSpec} disabled={loading}>
-          {loading && (<LoadingSpinner />)}
+        <Button
+          className="whitespace-nowrap"
+          color="gray"
+          onClick={handleLoadSpec}
+          disabled={loading}
+        >
+          {loading && <LoadingSpinner />}
           {loading ? "Loading.." : "Load OpenAPI Spec"}
         </Button>
       </div>
     </div>
   );
-}
+};
 
 export default SelectApiSpec;

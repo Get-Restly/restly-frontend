@@ -1,6 +1,6 @@
 "use client";
 
-import React, {FC, useMemo} from "react";
+import React, { FC, useMemo } from "react";
 import { Button, Select } from "flowbite-react";
 import { OpenApiSpec, ApiEndpoint, extractApiEndpoints } from "~/types";
 import LoadingSpinner from "./LoadingSpinner";
@@ -15,33 +15,50 @@ interface ApiPickerProps {
 }
 
 const ApiPicker: FC<ApiPickerProps> = ({
-  spec, 
-  value, 
-  onChange, 
+  spec,
+  value,
+  onChange,
   onAutoSelect,
   autoSelectLoading,
 }) => {
-  const endpoints = useMemo(() => spec?.paths ? extractApiEndpoints(spec) : [], [spec]);
-  
+  const endpoints = useMemo(
+    () => (spec?.paths ? extractApiEndpoints(spec) : []),
+    [spec],
+  );
+
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selected = e.target.selectedOptions;
-    const selectedEndpoints = Array.from(selected).map((option) => {
-      const [path, verb] = option.value.split('#');
-      return endpoints.find((endpoint) => endpoint.path === path && endpoint.verb === verb);
-    }).filter(Boolean) as ApiEndpoint[];
+    const selectedEndpoints = Array.from(selected)
+      .map((option) => {
+        const [path, verb] = option.value.split("#");
+        return endpoints.find(
+          (endpoint) => endpoint.path === path && endpoint.verb === verb,
+        );
+      })
+      .filter(Boolean) as ApiEndpoint[];
     onChange(selectedEndpoints);
-  }
+  };
 
   const autoSelectText = autoSelectLoading ? "Loading..." : "Auto Select";
 
   const selectValue = useMemo(() => {
-    return value.map((endpoint) => `${endpoint.path}#${endpoint.verb.toLowerCase()}`);
+    return value.map(
+      (endpoint) => `${endpoint.path}#${endpoint.verb.toLowerCase()}`,
+    );
   }, [value]);
 
   return (
     <div className="flex w-full flex-col gap-4 px-2">
-      <Button color="gray" onClick={() => onAutoSelect()} disabled={autoSelectLoading}>
-        {autoSelectLoading ? (<LoadingSpinner />) : <SparklesIcon className="w-5 h-5 mx-1" />}
+      <Button
+        color="gray"
+        onClick={() => onAutoSelect()}
+        disabled={autoSelectLoading}
+      >
+        {autoSelectLoading ? (
+          <LoadingSpinner />
+        ) : (
+          <SparklesIcon className="mx-1 h-5 w-5" />
+        )}
         <span>{autoSelectText}</span>
       </Button>
       <div>
@@ -55,7 +72,7 @@ const ApiPicker: FC<ApiPickerProps> = ({
           size={Math.min(12, endpoints.length)}
         >
           {endpoints.map((endpoint) => (
-            <option 
+            <option
               key={`${endpoint.path}#${endpoint.verb}`}
               value={`${endpoint.path}#${endpoint.verb}`}
             >
@@ -66,6 +83,6 @@ const ApiPicker: FC<ApiPickerProps> = ({
       </div>
     </div>
   );
-}
+};
 
 export default ApiPicker;

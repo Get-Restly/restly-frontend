@@ -9,7 +9,7 @@ type MarkdownRendererProps = {
 const MarkdownRenderer = (props: MarkdownRendererProps) => {
   return (
     <ReactMarkdown
-      className="prose prose-p:leading-relaxed mt-1 w-full break-words"
+      className="prose mt-1 w-full break-words prose-p:leading-relaxed"
       remarkPlugins={[remarkGfm]}
       // components={{
       //   // open links in new tab

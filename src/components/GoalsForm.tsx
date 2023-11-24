@@ -1,7 +1,7 @@
 "use client";
 
-import React, {FC} from "react";
-import {Textarea} from "flowbite-react";
+import React, { FC } from "react";
+import { Textarea } from "flowbite-react";
 
 interface GoalsFormProps {
   value: string;
@@ -11,7 +11,7 @@ interface GoalsFormProps {
 const GoalsForm: FC<GoalsFormProps> = ({ value, onChange }) => {
   const handleTextChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     onChange(event.target.value);
-  }
+  };
 
   return (
     <div className="flex w-full flex-col gap-4 px-2">
@@ -25,6 +25,6 @@ const GoalsForm: FC<GoalsFormProps> = ({ value, onChange }) => {
       />
     </div>
   );
-}
+};
 
 export default GoalsForm;
