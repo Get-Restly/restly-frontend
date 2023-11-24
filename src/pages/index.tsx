@@ -10,7 +10,7 @@ import { ApiSpec, OpenApiSpec, ApiEndpoint } from "~/types";
 import {
   createTutorial,
   loadTutorials,
-  generateTutorialContent,
+  streamTutorialContent,
   loadSpec,
   loadRelevantApis,
 } from "~/api";
@@ -85,13 +85,13 @@ export default function Home() {
     }
     try {
       setGeneratingTutorial(true);
-      const content = await generateTutorialContent(
+      await streamTutorialContent(
         tutorialId,
         goalsText,
         apiSpecId,
         selectedApiEndpoints,
+        (content: string) => setTutorialContent(content),
       );
-      setTutorialContent(content);
     } finally {
       setGeneratingTutorial(false);
     }

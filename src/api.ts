@@ -92,12 +92,21 @@ interface generateTutorialContentResponse {
   content: string;
 }
 
-export async function generateTutorialContent(
+function createChunkDecoder() {
+  const decoder = new TextDecoder();
+  return function (chunk: Uint8Array | undefined): string {
+    if (!chunk) return "";
+    return decoder.decode(chunk, { stream: true });
+  };
+}
+
+export async function streamTutorialContent(
   tutorialId: number,
   query: string,
   specId: number,
   apis: ApiEndpoint[],
-): Promise<string> {
+  update: (value: string) => void,
+) {
   const resp = await fetch(
     `${API_URL}/api/v1/tutorials/${tutorialId}/generate-content`,
     {
@@ -112,6 +121,26 @@ export async function generateTutorialContent(
       }),
     },
   );
-  const data = (await resp.json()) as generateTutorialContentResponse;
-  return data.content;
+  if (!resp.ok) {
+    throw new Error(`Server responded with status: ${resp.status}`);
+  }
+
+  if (!resp.body) {
+    throw new Error("The response body is empty.");
+  }
+
+  //Stream in the response and update the chat state with the new message tokens as they come
+  const reader = resp.body.getReader();
+  const decode = createChunkDecoder();
+  let streamedResponse = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) {
+      break;
+    }
+    // Update the chat state with the new message tokens.
+    streamedResponse += decode(value);
+    update(streamedResponse);
+  }
 }
