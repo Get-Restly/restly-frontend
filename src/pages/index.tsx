@@ -16,11 +16,14 @@ import {
 } from "~/api";
 import { SparklesIcon } from "@heroicons/react/24/solid";
 import LoadingSpinner from "~/components/LoadingSpinner";
+import { useLocalAuth } from "~/hooks/useLocalAuth";
+import axios from "axios";
 
 const DEFAULT_MARKDOWN = `# Hello Editor`;
 const DEFAULT_TUTORIAL_NAME = "Draft Tutorial";
 
 export default function Home() {
+  const { userToken } = useLocalAuth();
   const [apiSpecId, setApiSpecId] = useState<number | undefined>();
   const [goalsText, setGoalsText] = useState<string>("");
   const [apiSpec, setApiSpec] = useState<ApiSpec | undefined>();
@@ -126,7 +129,7 @@ export default function Home() {
                   d="M5 4 1 8l4 4m10-8 4 4-4 4M11 1 9 15"
                 />{" "}
               </svg>
-              <div className="px-2 text-xl font-bold">Restly</div>
+              <div className="px-2 text-xl font-bold">Restly - {userToken}</div>
             </div>
           </div>
         </div>
