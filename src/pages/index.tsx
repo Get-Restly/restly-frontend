@@ -129,7 +129,7 @@ export default function Home() {
                   d="M5 4 1 8l4 4m10-8 4 4-4 4M11 1 9 15"
                 />{" "}
               </svg>
-              <div className="px-2 text-xl font-bold">Restly - {userToken}</div>
+              <div className="px-2 text-xl font-bold">Restly</div>
             </div>
           </div>
         </div>
