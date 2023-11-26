@@ -1,4 +1,4 @@
-import { ApiEndpoint, ApiSpec, Tutorial } from "./types";
+import { type ApiEndpoint, type ApiSpec, type Tutorial } from "./types";
 import { env } from "./env.mjs";
 import axios from "axios";
 

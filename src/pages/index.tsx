@@ -6,7 +6,7 @@ import ApiPicker from "~/components/ApiPicker";
 import GoalsForm from "~/components/GoalsForm";
 import MarkdownEditor from "~/components/MarkdownEditor";
 import SelectApiSpec from "~/components/SelectApiSpec";
-import { ApiSpec, OpenApiSpec, ApiEndpoint } from "~/types";
+import { type ApiSpec, type OpenApiSpec, type ApiEndpoint } from "~/types";
 import {
   createTutorial,
   loadTutorials,

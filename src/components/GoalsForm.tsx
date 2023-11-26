@@ -1,6 +1,6 @@
 "use client";
 
-import React, { FC } from "react";
+import React, { type FC } from "react";
 import { Textarea } from "flowbite-react";
 
 interface GoalsFormProps {

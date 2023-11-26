@@ -1,8 +1,8 @@
 "use client";
 
-import React, { FC, useMemo } from "react";
+import React, { type FC, useMemo } from "react";
 import { Button, Select } from "flowbite-react";
-import { OpenApiSpec, ApiEndpoint, extractApiEndpoints } from "~/types";
+import { type OpenApiSpec, type ApiEndpoint, extractApiEndpoints } from "~/types";
 import LoadingSpinner from "./LoadingSpinner";
 import { SparklesIcon } from "@heroicons/react/24/outline";
 
