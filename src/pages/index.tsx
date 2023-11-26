@@ -7,23 +7,16 @@ import GoalsForm from "~/components/GoalsForm";
 import MarkdownEditor from "~/components/MarkdownEditor";
 import SelectApiSpec from "~/components/SelectApiSpec";
 import { type ApiSpec, type OpenApiSpec, type ApiEndpoint } from "~/types";
-import {
-  createTutorial,
-  loadTutorials,
-  generateTutorialContent,
-  loadSpec,
-  loadRelevantApis,
-} from "~/api";
 import { SparklesIcon } from "@heroicons/react/24/solid";
 import LoadingSpinner from "~/components/LoadingSpinner";
-import { useLocalAuth } from "~/hooks/useLocalAuth";
-import axios from "axios";
+import { useAPI } from "~/hooks/useAPI";
 
 const DEFAULT_MARKDOWN = `# Hello Editor`;
 const DEFAULT_TUTORIAL_NAME = "Draft Tutorial";
 
 export default function Home() {
-  const { userToken } = useLocalAuth();
+  const api = useAPI();
+
   const [apiSpecId, setApiSpecId] = useState<number | undefined>();
   const [goalsText, setGoalsText] = useState<string>("");
   const [apiSpec, setApiSpec] = useState<ApiSpec | undefined>();
@@ -40,11 +33,11 @@ export default function Home() {
 
   useEffect(() => {
     const loadCurrentTutorial = async () => {
-      const tutorials = await loadTutorials();
+      const tutorials = await api.loadTutorials();
       if (tutorials.length > 0 && tutorials[0]) {
         setTutorialId(tutorials[0].id);
       } else {
-        const tutorialId = await createTutorial(DEFAULT_TUTORIAL_NAME);
+        const tutorialId = await api.createTutorial(DEFAULT_TUTORIAL_NAME);
         setTutorialId(tutorialId);
       }
     };
@@ -56,7 +49,7 @@ export default function Home() {
       if (!apiSpecId) {
         return;
       }
-      const spec = await loadSpec(apiSpecId);
+      const spec = await api.loadSpec(apiSpecId);
       setApiSpec(spec);
       if (spec.content) {
         const openApiSpec = JSON.parse(spec.content) as OpenApiSpec;
@@ -72,7 +65,7 @@ export default function Home() {
     }
     try {
       setAutoSelectApiLoading(true);
-      const relevantApis = await loadRelevantApis(apiSpecId, goalsText);
+      const relevantApis = await api.loadRelevantApis(apiSpecId, goalsText);
       setSelectedApiEndpoints(relevantApis);
     } finally {
       setAutoSelectApiLoading(false);
@@ -88,13 +81,13 @@ export default function Home() {
     }
     try {
       setGeneratingTutorial(true);
-      const content = await generateTutorialContent(
+      await api.streamTutorialContent(
         tutorialId,
         goalsText,
         apiSpecId,
         selectedApiEndpoints,
+        (content: string) => setTutorialContent(content),
       );
-      setTutorialContent(content);
     } finally {
       setGeneratingTutorial(false);
     }

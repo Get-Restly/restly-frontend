@@ -5,7 +5,7 @@ export interface LocalAuthState {
 }
 
 export const LocalAuthContext = createContext<LocalAuthState>(
-  {} as LocalAuthState
+  {} as LocalAuthState,
 );
 
 export function useLocalAuth(): LocalAuthState {

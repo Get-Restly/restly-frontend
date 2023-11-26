@@ -3,10 +3,8 @@
 import React, { type FC, useEffect, useState } from "react";
 import { Button, TextInput, Select } from "flowbite-react";
 import { type ApiSpec } from "~/types";
-import { spec } from "node:test/reporters";
-import { cp } from "node:fs";
-import { createSpec, loadSpecs } from "~/api";
 import LoadingSpinner from "./LoadingSpinner";
+import { useAPI } from "~/hooks/useAPI";
 
 interface SelectApiSpecProps {
   value: number | undefined;
@@ -14,12 +12,14 @@ interface SelectApiSpecProps {
 }
 
 const SelectApiSpec: FC<SelectApiSpecProps> = ({ value, onSelect }) => {
+  const api = useAPI();
+
   const [specs, setSpecs] = useState<ApiSpec[]>([]);
   const [url, setUrl] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
   const reloadSpecs = async () => {
-    const specs = await loadSpecs();
+    const specs = await api.loadSpecs();
     setSpecs(specs);
   };
 
@@ -33,7 +33,7 @@ const SelectApiSpec: FC<SelectApiSpecProps> = ({ value, onSelect }) => {
   };
 
   const handleLoadSpec = async () => {
-    const specId = await createSpec(url);
+    const specId = await api.createSpec(url);
     await reloadSpecs();
     onSelect(specId);
     setUrl("");
