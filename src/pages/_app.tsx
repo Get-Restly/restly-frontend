@@ -1,6 +1,7 @@
 import { type Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
 import { type AppType } from "next/app";
+import { LocalAuthProvider } from "~/context/LocalAuthProvider";
 
 import { api } from "~/utils/api";
 
@@ -12,7 +13,9 @@ const MyApp: AppType<{ session: Session | null }> = ({
 }) => {
   return (
     <SessionProvider session={session}>
-      <Component {...pageProps} />
+      <LocalAuthProvider>
+        <Component {...pageProps} />
+      </LocalAuthProvider>
     </SessionProvider>
   );
 };

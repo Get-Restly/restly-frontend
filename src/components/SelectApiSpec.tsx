@@ -1,8 +1,8 @@
 "use client";
 
-import React, { FC, useEffect, useState } from "react";
+import React, { type FC, useEffect, useState } from "react";
 import { Button, TextInput, Select } from "flowbite-react";
-import { ApiSpec } from "~/types";
+import { type ApiSpec } from "~/types";
 import { spec } from "node:test/reporters";
 import { cp } from "node:fs";
 import { createSpec, loadSpecs } from "~/api";

@@ -1,8 +1,27 @@
-import { ApiEndpoint, ApiSpec, Tutorial } from "./types";
+import { type ApiEndpoint, type ApiSpec, type Tutorial } from "./types";
 import { env } from "./env.mjs";
+import axios from "axios";
 
 const API_URL = env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:5000";
-console.log("🚀 ~ file: api.ts:5 ~ API_URL:", API_URL);
+
+
+interface createUserResponse {
+  token: string;
+}
+
+export async function createUser(): Promise<string> {
+  const resp = await fetch(`${API_URL}/api/v1/users`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email: null,
+    }),
+  });
+  const data = (await resp.json()) as createUserResponse;
+  return data.token;
+}
 
 interface createSpecResponse {
   id: number;
@@ -10,14 +29,10 @@ interface createSpecResponse {
 }
 
 export async function createSpec(url: string): Promise<number> {
-  const resp = await fetch(`${API_URL}/api/v1/specs`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ url }),
+  const resp = await axios.post(`${API_URL}/api/v1/specs`, {
+    url: url,
   });
-  const data = (await resp.json()) as createSpecResponse;
+  const data = resp.data as createSpecResponse;
   return data.id;
 }
 
@@ -26,8 +41,8 @@ interface loadSpecsResponse {
 }
 
 export async function loadSpecs(): Promise<ApiSpec[]> {
-  const resp = await fetch(`${API_URL}/api/v1/specs`);
-  const data = (await resp.json()) as loadSpecsResponse;
+  const resp = await axios.get(`${API_URL}/api/v1/specs`);
+  const data = resp.data as loadSpecsResponse;
   return data.specs;
 }
 
@@ -36,8 +51,8 @@ interface loadSpecResponse {
 }
 
 export async function loadSpec(id: number): Promise<ApiSpec> {
-  const resp = await fetch(`${API_URL}/api/v1/specs/${id}`);
-  const data = (await resp.json()) as loadSpecResponse;
+  const resp = await axios.get(`${API_URL}/api/v1/specs/${id}`);
+  const data = resp.data as loadSpecResponse;
   return data.spec;
 }
 
@@ -49,16 +64,13 @@ export async function loadRelevantApis(
   specId: number,
   query: string,
 ): Promise<ApiEndpoint[]> {
-  const resp = await fetch(`${API_URL}/api/v1/specs/${specId}/relevant-apis`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
+  const resp = await axios.post(
+    `${API_URL}/api/v1/specs/${specId}/relevant-apis`,
+    {
+      query: query,
     },
-    body: JSON.stringify({
-      query,
-    }),
-  });
-  const data = (await resp.json()) as loadRelevantApisResponse;
+  );
+  const data = resp.data as loadRelevantApisResponse;
   return data.apis;
 }
 
@@ -67,14 +79,10 @@ interface createTutorialResponse {
 }
 
 export async function createTutorial(name: string): Promise<number> {
-  const resp = await fetch(`${API_URL}/api/v1/tutorials`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ name }),
+  const resp = await axios.post(`${API_URL}/api/v1/tutorials`, {
+    name: name,
   });
-  const data = (await resp.json()) as createTutorialResponse;
+  const data = resp.data as createTutorialResponse;
   return data.id;
 }
 
@@ -83,8 +91,8 @@ interface loadTutorialsResponse {
 }
 
 export async function loadTutorials(): Promise<Tutorial[]> {
-  const resp = await fetch(`${API_URL}/api/v1/tutorials`);
-  const data = (await resp.json()) as loadTutorialsResponse;
+  const resp = await axios.get(`${API_URL}/api/v1/tutorials`);
+  const data = resp.data as loadTutorialsResponse;
   return data.tutorials;
 }
 
@@ -98,20 +106,14 @@ export async function generateTutorialContent(
   specId: number,
   apis: ApiEndpoint[],
 ): Promise<string> {
-  const resp = await fetch(
+  const resp = await axios.post(
     `${API_URL}/api/v1/tutorials/${tutorialId}/generate-content`,
     {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query,
-        specId,
-        apis,
-      }),
+      query: query,
+      specId: specId,
+      apis: apis,
     },
   );
-  const data = (await resp.json()) as generateTutorialContentResponse;
+  const data = resp.data as generateTutorialContentResponse;
   return data.content;
 }
