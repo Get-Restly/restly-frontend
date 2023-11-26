@@ -27,7 +27,7 @@ export function extractApiEndpoints(spec: OpenApiSpec): ApiEndpoint[] {
   for (const path of Object.keys(spec.paths)) {
     const item = spec.paths[path];
     for (const method of Object.keys(item)) {
-      const obj = item[method];
+      // const obj = item[method];
       const endpoint: ApiEndpoint = {
         path: path,
         verb: method,

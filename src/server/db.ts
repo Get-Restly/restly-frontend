@@ -2,9 +2,10 @@ import { PrismaClient } from "@prisma/client";
 
 import { env } from "~/env.mjs";
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
-};
+interface GlobalPrismaType {
+  prisma?: PrismaClient;
+}
+const globalForPrisma = globalThis as unknown as GlobalPrismaType;
 
 export const db =
   globalForPrisma.prisma ??

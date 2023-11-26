@@ -6,7 +6,7 @@ import ApiPicker from "~/components/ApiPicker";
 import GoalsForm from "~/components/GoalsForm";
 import MarkdownEditor from "~/components/MarkdownEditor";
 import SelectApiSpec from "~/components/SelectApiSpec";
-import { ApiSpec, OpenApiSpec, ApiEndpoint } from "~/types";
+import { type ApiSpec, type OpenApiSpec, type ApiEndpoint } from "~/types";
 import {
   createTutorial,
   loadTutorials,
@@ -16,11 +16,14 @@ import {
 } from "~/api";
 import { SparklesIcon } from "@heroicons/react/24/solid";
 import LoadingSpinner from "~/components/LoadingSpinner";
+import { useLocalAuth } from "~/hooks/useLocalAuth";
+import axios from "axios";
 
 const DEFAULT_MARKDOWN = `# Hello Editor`;
 const DEFAULT_TUTORIAL_NAME = "Draft Tutorial";
 
 export default function Home() {
+  const { userToken } = useLocalAuth();
   const [apiSpecId, setApiSpecId] = useState<number | undefined>();
   const [goalsText, setGoalsText] = useState<string>("");
   const [apiSpec, setApiSpec] = useState<ApiSpec | undefined>();
