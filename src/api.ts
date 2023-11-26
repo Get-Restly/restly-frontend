@@ -1,98 +1,32 @@
 import { type ApiEndpoint, type ApiSpec, type Tutorial } from "./types";
 import { env } from "./env.mjs";
-import axios from "axios";
 
 const API_URL = env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:5000";
 
 interface createUserResponse {
   token: string;
 }
-
-export async function createUser(): Promise<string> {
-  const resp = await fetch(`${API_URL}/api/v1/users`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      email: null,
-    }),
-  });
-  const data = (await resp.json()) as createUserResponse;
-  return data.token;
-}
-
 interface createSpecResponse {
   id: number;
   name: string;
 }
-
-export async function createSpec(url: string): Promise<number> {
-  const resp = await axios.post(`${API_URL}/api/v1/specs`, {
-    url: url,
-  });
-  const data = resp.data as createSpecResponse;
-  return data.id;
-}
-
 interface loadSpecsResponse {
   specs: ApiSpec[];
-}
-
-export async function loadSpecs(): Promise<ApiSpec[]> {
-  const resp = await axios.get(`${API_URL}/api/v1/specs`);
-  const data = resp.data as loadSpecsResponse;
-  return data.specs;
 }
 
 interface loadSpecResponse {
   spec: ApiSpec;
 }
-
-export async function loadSpec(id: number): Promise<ApiSpec> {
-  const resp = await axios.get(`${API_URL}/api/v1/specs/${id}`);
-  const data = resp.data as loadSpecResponse;
-  return data.spec;
+interface createTutorialResponse {
+  id: number;
 }
 
 interface loadRelevantApisResponse {
   apis: ApiEndpoint[];
 }
 
-export async function loadRelevantApis(
-  specId: number,
-  query: string,
-): Promise<ApiEndpoint[]> {
-  const resp = await axios.post(
-    `${API_URL}/api/v1/specs/${specId}/relevant-apis`,
-    {
-      query: query,
-    },
-  );
-  const data = resp.data as loadRelevantApisResponse;
-  return data.apis;
-}
-
-interface createTutorialResponse {
-  id: number;
-}
-
-export async function createTutorial(name: string): Promise<number> {
-  const resp = await axios.post(`${API_URL}/api/v1/tutorials`, {
-    name: name,
-  });
-  const data = resp.data as createTutorialResponse;
-  return data.id;
-}
-
 interface loadTutorialsResponse {
   tutorials: Tutorial[];
-}
-
-export async function loadTutorials(): Promise<Tutorial[]> {
-  const resp = await axios.get(`${API_URL}/api/v1/tutorials`);
-  const data = resp.data as loadTutorialsResponse;
-  return data.tutorials;
 }
 
 interface generateTutorialContentResponse {
@@ -107,38 +41,164 @@ function createChunkDecoder() {
   };
 }
 
-export async function streamTutorialContent(
-  tutorialId: number,
-  query: string,
-  specId: number,
-  apis: ApiEndpoint[],
-  update: (value: string) => void,
-) {
-  const resp = await axios.post(
-    `${API_URL}/api/v1/tutorials/${tutorialId}/generate-content`,
-    {
-      query: query,
-      specId: specId,
-      apis: apis,
-    },
-  );
+export class API {
+  userToken: string | null;
 
-  if (resp.status !== 200) {
-    throw new Error(`Server responded with status: ${resp.status}`);
+  constructor(userToken: string | null = null) {
+    this.userToken = userToken;
   }
 
-  // Stream in the response and update the chat state with the new message tokens as they come
-  const reader = resp.data.pipeThrough(new TextDecoderStream()).getReader();
-  const decode = createChunkDecoder();
-  let streamedResponse = "";
+  setUserToken(token: string | null): void {
+    this.userToken = token;
+  }
 
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) {
-      break;
+  static async createUser(): Promise<string> {
+    const resp = await fetch(`${API_URL}/api/v1/users`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: null,
+      }),
+    });
+    const data = (await resp.json()) as createUserResponse;
+    return data.token;
+  }
+
+  private ensureUserToken(): void {
+    if (this.userToken === null) {
+      throw new Error("User token is null, cannot perform the operation.");
     }
-    // Update the chat state with the new message tokens.
-    streamedResponse += decode(value);
-    update(streamedResponse);
+  }
+
+  async createSpec(url: string): Promise<number> {
+    this.ensureUserToken();
+
+    const resp = await fetch(`${API_URL}/api/v1/specs`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${this.userToken}`,
+      },
+      body: JSON.stringify({ url }),
+    });
+    const data = (await resp.json()) as createSpecResponse;
+    return data.id;
+  }
+
+  async loadSpecs(): Promise<ApiSpec[]> {
+    this.ensureUserToken();
+
+    const resp = await fetch(`${API_URL}/api/v1/specs`, {
+      headers: {
+        Authorization: `Bearer ${this.userToken}`,
+      },
+    });
+    const data = (await resp.json()) as loadSpecsResponse;
+    return data.specs;
+  }
+
+  async loadSpec(id: number): Promise<ApiSpec> {
+    this.ensureUserToken();
+
+    const resp = await fetch(`${API_URL}/api/v1/specs/${id}`, {
+      headers: {
+        Authorization: `Bearer ${this.userToken}`,
+      },
+    });
+    const data = (await resp.json()) as loadSpecResponse;
+    return data.spec;
+  }
+
+  async loadRelevantApis(
+    specId: number,
+    query: string,
+  ): Promise<ApiEndpoint[]> {
+    this.ensureUserToken();
+
+    const resp = await fetch(
+      `${API_URL}/api/v1/specs/${specId}/relevant-apis`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${this.userToken}`,
+        },
+        body: JSON.stringify({ query }),
+      },
+    );
+    const data = (await resp.json()) as loadRelevantApisResponse;
+    return data.apis;
+  }
+
+  async createTutorial(name: string): Promise<number> {
+    this.ensureUserToken();
+
+    const resp = await fetch(`${API_URL}/api/v1/tutorials`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${this.userToken}`,
+      },
+      body: JSON.stringify({ name }),
+    });
+    const data = (await resp.json()) as createTutorialResponse;
+    return data.id;
+  }
+
+  async loadTutorials(): Promise<Tutorial[]> {
+    this.ensureUserToken();
+
+    const resp = await fetch(`${API_URL}/api/v1/tutorials`, {
+      headers: {
+        Authorization: `Bearer ${this.userToken}`,
+      },
+    });
+    const data = (await resp.json()) as loadTutorialsResponse;
+    return data.tutorials;
+  }
+
+  async streamTutorialContent(
+    tutorialId: number,
+    query: string,
+    specId: number,
+    apis: ApiEndpoint[],
+    update: (value: string) => void,
+  ) {
+    this.ensureUserToken();
+
+    const resp = await fetch(
+      `${API_URL}/api/v1/tutorials/${tutorialId}/generate-content`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${this.userToken}`,
+        },
+        body: JSON.stringify({
+          query: query,
+          specId: specId,
+          apis: apis,
+        }),
+      },
+    );
+
+    if (!resp.body) {
+      throw new Error("Response body is null");
+    }
+
+    const reader = resp.body.getReader();
+    const decode = createChunkDecoder();
+    let streamedResponse = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        break;
+      }
+      streamedResponse += decode(value);
+      update(streamedResponse);
+    }
   }
 }
