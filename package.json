@@ -6,7 +6,7 @@
     "build": "next build",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
-    "dev": "railway run -e dev-$(whoami) next dev",
+    "dev": "railway run -e dev-$(whoami) --service restly-frontend next dev",
     "postinstall": "prisma generate",
     "lint": "next lint",
     "lint-fix": "next lint --fix",
