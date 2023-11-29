@@ -21,7 +21,7 @@ export default class MockApi implements ApiInterface {
   loadTutorials(): Promise<Tutorial[]> {
     throw new Error("Method not implemented.");
   }
-  streamTutorialContent(tutorialId: number, query: string, specId: number, apis: ApiEndpoint[], update: (value: string) => void): void {
+  streamTutorialContent(tutorialId: number, query: string, specId: number, apis: ApiEndpoint[], update: (value: string) => void): Promise<void> {
     throw new Error("Method not implemented.");
   }
 }

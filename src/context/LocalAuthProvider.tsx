@@ -35,7 +35,7 @@ export const LocalAuthProvider: FC<Props> = ({ children }) => {
         const token = await initUserToken();
         setUserToken(token);
       }
-      );
+    ).catch((e) => console.error(e));
   }, [mutex]);
     
   return (

@@ -9,5 +9,5 @@ export default interface ApiInterface {
   loadRelevantApis(specId: number, query: string): Promise<ApiEndpoint[]>;
   createTutorial(name: string): Promise<number>;
   loadTutorials(): Promise<Tutorial[]>;
-  streamTutorialContent(tutorialId: number, query: string, specId: number, apis: ApiEndpoint[], update: streamTutorialCb): void;
+  streamTutorialContent(tutorialId: number, query: string, specId: number, apis: ApiEndpoint[], update: streamTutorialCb): Promise<void>;
 }
