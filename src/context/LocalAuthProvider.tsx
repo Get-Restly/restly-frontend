@@ -1,36 +1,43 @@
 import React, { type FC, useEffect, useState } from "react";
+import { Mutex } from "async-mutex";
 import { LocalAuthContext } from "../hooks/useLocalAuth";
-import { API } from "~/api";
-// import axios from "axios";
+import AuthApi from "~/api/authApi";
+
+const RESTLY_TOKEN = "restlyToken";
 
 interface Props {
   children: React.ReactNode;
 }
 
 export const LocalAuthProvider: FC<Props> = ({ children }) => {
+  const [mutex] = useState(() => new Mutex());
   const [userToken, setUserToken] = useState<string | null>(null);
-
-  useEffect(() => {
-    const token = localStorage.getItem("userToken");
+  
+  const initUserToken = async () => {
+    const token = localStorage.getItem(RESTLY_TOKEN);
     if (token) {
-      setUserToken(token);
-      // axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+      return token;
+    }
+    const newToken = await AuthApi.createUser();
+    if (!newToken) {
+      throw new Error("Invalid token!");
+    }
+    localStorage.setItem(RESTLY_TOKEN, newToken);
+    return newToken;
+  }
+  
+  useEffect(() => {
+    if (!mutex) {
       return;
     }
-    API.createUser()
-      .then((token) => {
-        if (!token) {
-          throw new Error("Invalid token!");
-        }
-        localStorage.setItem("userToken", token);
+    mutex.runExclusive(
+      async () => {
+        const token = await initUserToken();
         setUserToken(token);
-        // axios.defaults.headers.common.Authorization = `Bearer ${token}`;
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  }, []);
-
+      }
+    ).catch((e) => console.error(e));
+  }, [mutex]);
+    
   return (
     <LocalAuthContext.Provider value={{ userToken }}>
       {children}
