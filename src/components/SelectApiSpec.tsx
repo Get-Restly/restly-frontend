@@ -4,7 +4,7 @@ import React, { type FC, useEffect, useState } from "react";
 import { Button, TextInput, Select } from "flowbite-react";
 import { type ApiSpec } from "~/types";
 import LoadingSpinner from "./LoadingSpinner";
-import { useAPI } from "~/hooks/useAPI";
+import { useApi } from "~/hooks/useAPI";
 
 interface SelectApiSpecProps {
   value: number | undefined;
@@ -12,7 +12,7 @@ interface SelectApiSpecProps {
 }
 
 const SelectApiSpec: FC<SelectApiSpecProps> = ({ value, onSelect }) => {
-  const api = useAPI();
+  const { api, authenticated } = useApi();
 
   const [specs, setSpecs] = useState<ApiSpec[]>([]);
   const [url, setUrl] = useState<string>("");
@@ -24,8 +24,11 @@ const SelectApiSpec: FC<SelectApiSpecProps> = ({ value, onSelect }) => {
   };
 
   useEffect(() => {
+    if (!authenticated) {
+      return;
+    }
     reloadSpecs().catch((e) => console.error(e));
-  }, []);
+  }, [authenticated]);
 
   const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     e.preventDefault();

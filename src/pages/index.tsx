@@ -9,13 +9,13 @@ import SelectApiSpec from "~/components/SelectApiSpec";
 import { type ApiSpec, type OpenApiSpec, type ApiEndpoint } from "~/types";
 import { SparklesIcon } from "@heroicons/react/24/solid";
 import LoadingSpinner from "~/components/LoadingSpinner";
-import { useAPI } from "~/hooks/useAPI";
+import { useApi } from "~/hooks/useAPI";
 
 const DEFAULT_MARKDOWN = `# Hello Editor`;
 const DEFAULT_TUTORIAL_NAME = "Draft Tutorial";
 
 export default function Home() {
-  const api = useAPI();
+  const { api, authenticated } = useApi();
 
   const [apiSpecId, setApiSpecId] = useState<number | undefined>();
   const [goalsText, setGoalsText] = useState<string>("");
@@ -32,6 +32,9 @@ export default function Home() {
   const [generatingTutorial, setGeneratingTutorial] = useState<boolean>(false);
 
   useEffect(() => {
+    if (!authenticated) {
+      return;
+    }
     const loadCurrentTutorial = async () => {
       const tutorials = await api.loadTutorials();
       if (tutorials.length > 0 && tutorials[0]) {
@@ -42,7 +45,7 @@ export default function Home() {
       }
     };
     loadCurrentTutorial().catch((e) => console.error(e));
-  }, []);
+  }, [authenticated]);
 
   useEffect(() => {
     const reloadSpec = async () => {

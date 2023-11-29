@@ -1,32 +1,25 @@
 import React, { type FC, useEffect, useState } from "react";
-import { APIContext } from "../hooks/useAPI";
-import { API } from "~/api";
+import { ApiContext } from "../hooks/useAPI";
+import API from "~/api/api";
+import MockApi from "~/api/mockApi";
+import ApiInterface from "~/api/apiInterface";
+import { useLocalAuth } from "~/hooks/useLocalAuth";
 
 interface Props {
   children: React.ReactNode;
 }
 
 export const APIProvider: FC<Props> = ({ children }) => {
-  const api = new API();
+  const [api, setAPI] = useState<ApiInterface>(new MockApi());
+  const [authenticated, setAuthenticated] = useState<boolean>(false);
+  const { userToken } = useLocalAuth();
 
   useEffect(() => {
-    const token = localStorage.getItem("userToken");
-    if (token) {
-      api.setUserToken(token);
-      return;
+    if (userToken) {
+      setAPI(new API(userToken));
+      setAuthenticated(true);
     }
-    API.createUser()
-      .then((token) => {
-        if (!token) {
-          throw new Error("Invalid token!");
-        }
-        localStorage.setItem("userToken", token);
-        api.setUserToken(token);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  }, []);
+  }, [userToken]);
 
-  return <APIContext.Provider value={api}>{children}</APIContext.Provider>;
+  return <ApiContext.Provider value={{api, authenticated}}>{children}</ApiContext.Provider>;
 };

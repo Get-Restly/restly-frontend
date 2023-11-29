@@ -1,80 +1,25 @@
-import { type ApiEndpoint, type ApiSpec, type Tutorial } from "./types";
-import { env } from "./env.mjs";
+import { type ApiEndpoint, type ApiSpec, type Tutorial } from "../types";
+import {
+  type createSpecResponse,
+  type loadSpecsResponse,
+  type loadSpecResponse,
+  type loadRelevantApisResponse,
+  type createTutorialResponse,
+  type loadTutorialsResponse,
+} from "./types";
+import { API_URL } from "../constants";
+import ApiInterface from "./apiInterface";
+import { createChunkDecoder } from "./utils";
 
-const API_URL = env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:5000";
 
-interface createUserResponse {
-  token: string;
-}
-interface createSpecResponse {
-  id: number;
-  name: string;
-}
-interface loadSpecsResponse {
-  specs: ApiSpec[];
-}
+export default class API implements ApiInterface {
+  userToken: string;
 
-interface loadSpecResponse {
-  spec: ApiSpec;
-}
-interface createTutorialResponse {
-  id: number;
-}
-
-interface loadRelevantApisResponse {
-  apis: ApiEndpoint[];
-}
-
-interface loadTutorialsResponse {
-  tutorials: Tutorial[];
-}
-
-interface generateTutorialContentResponse {
-  content: string;
-}
-
-function createChunkDecoder() {
-  const decoder = new TextDecoder();
-  return function (chunk: Uint8Array | undefined): string {
-    if (!chunk) return "";
-    return decoder.decode(chunk, { stream: true });
-  };
-}
-
-export class API {
-  userToken: string | null;
-
-  constructor(userToken: string | null = null) {
+  constructor(userToken: string) {
     this.userToken = userToken;
   }
 
-  setUserToken(token: string | null): void {
-    this.userToken = token;
-  }
-
-  static async createUser(): Promise<string> {
-    const resp = await fetch(`${API_URL}/api/v1/users`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: null,
-      }),
-    });
-    const data = (await resp.json()) as createUserResponse;
-    return data.token;
-  }
-
-  private ensureUserToken(): void {
-    if (this.userToken === null) {
-      throw new Error("User token is null, cannot perform the operation.");
-    }
-  }
-
   async createSpec(url: string): Promise<number> {
-    this.ensureUserToken();
-
     const resp = await fetch(`${API_URL}/api/v1/specs`, {
       method: "POST",
       headers: {
@@ -88,8 +33,6 @@ export class API {
   }
 
   async loadSpecs(): Promise<ApiSpec[]> {
-    this.ensureUserToken();
-
     const resp = await fetch(`${API_URL}/api/v1/specs`, {
       headers: {
         Authorization: `Bearer ${this.userToken}`,
@@ -100,8 +43,6 @@ export class API {
   }
 
   async loadSpec(id: number): Promise<ApiSpec> {
-    this.ensureUserToken();
-
     const resp = await fetch(`${API_URL}/api/v1/specs/${id}`, {
       headers: {
         Authorization: `Bearer ${this.userToken}`,
@@ -115,8 +56,6 @@ export class API {
     specId: number,
     query: string,
   ): Promise<ApiEndpoint[]> {
-    this.ensureUserToken();
-
     const resp = await fetch(
       `${API_URL}/api/v1/specs/${specId}/relevant-apis`,
       {
@@ -133,8 +72,6 @@ export class API {
   }
 
   async createTutorial(name: string): Promise<number> {
-    this.ensureUserToken();
-
     const resp = await fetch(`${API_URL}/api/v1/tutorials`, {
       method: "POST",
       headers: {
@@ -148,8 +85,6 @@ export class API {
   }
 
   async loadTutorials(): Promise<Tutorial[]> {
-    this.ensureUserToken();
-
     const resp = await fetch(`${API_URL}/api/v1/tutorials`, {
       headers: {
         Authorization: `Bearer ${this.userToken}`,
@@ -166,8 +101,6 @@ export class API {
     apis: ApiEndpoint[],
     update: (value: string) => void,
   ) {
-    this.ensureUserToken();
-
     const resp = await fetch(
       `${API_URL}/api/v1/tutorials/${tutorialId}/generate-content`,
       {
