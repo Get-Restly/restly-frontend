@@ -8,7 +8,7 @@ import {
   type loadTutorialsResponse,
 } from "./types";
 import { API_URL } from "../constants";
-import ApiInterface from "./apiInterface";
+import type ApiInterface from "./apiInterface";
 import { createChunkDecoder } from "./utils";
 
 

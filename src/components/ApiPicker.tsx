@@ -2,7 +2,11 @@
 
 import React, { type FC, useMemo } from "react";
 import { Button, Select } from "flowbite-react";
-import { type OpenApiSpec, type ApiEndpoint, extractApiEndpoints } from "~/types";
+import {
+  type OpenApiSpec,
+  type ApiEndpoint,
+  extractApiEndpoints,
+} from "~/types";
 import LoadingSpinner from "./LoadingSpinner";
 import { SparklesIcon } from "@heroicons/react/24/outline";
 
@@ -12,6 +16,7 @@ interface ApiPickerProps {
   onChange: (value: ApiEndpoint[]) => void;
   onAutoSelect: () => void;
   autoSelectLoading?: boolean;
+  goalsText: string;
 }
 
 const ApiPicker: FC<ApiPickerProps> = ({
@@ -20,6 +25,7 @@ const ApiPicker: FC<ApiPickerProps> = ({
   onChange,
   onAutoSelect,
   autoSelectLoading,
+  goalsText,
 }) => {
   const endpoints = useMemo(
     () => (spec?.paths ? extractApiEndpoints(spec) : []),
@@ -52,7 +58,7 @@ const ApiPicker: FC<ApiPickerProps> = ({
       <Button
         color="gray"
         onClick={() => onAutoSelect()}
-        disabled={autoSelectLoading}
+        disabled={autoSelectLoading ?? spec === undefined ?? goalsText === ""}
       >
         {autoSelectLoading ? (
           <LoadingSpinner />

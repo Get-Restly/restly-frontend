@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import ApiInterface from "~/api/apiInterface";
+import type ApiInterface from "~/api/apiInterface";
 
 export interface ApiState {
   api: ApiInterface;

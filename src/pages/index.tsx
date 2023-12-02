@@ -96,6 +96,12 @@ export default function Home() {
     }
   };
 
+  const canGenerateTutorial =
+    tutorialId === undefined ??
+    goalsText === "" ??
+    apiSpecId === undefined ??
+    selectedApiEndpoints.length === 0;
+
   return (
     <>
       <Head>
@@ -164,6 +170,7 @@ export default function Home() {
                   onChange={setSelectedApiEndpoints}
                   onAutoSelect={autoSelectApis}
                   autoSelectLoading={autoSelectApiLoading}
+                  goalsText={goalsText}
                 />
               </div>
               <div className="flex flex-col items-center self-stretch">
@@ -173,6 +180,7 @@ export default function Home() {
                   size="lg"
                   className="focus:ring-1 focus:ring-gray-200"
                   onClick={() => generateTutorial()}
+                  disabled={canGenerateTutorial}
                 >
                   {generatingTutorial ? (
                     <LoadingSpinner />
