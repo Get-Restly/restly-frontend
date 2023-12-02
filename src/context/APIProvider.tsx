@@ -2,7 +2,7 @@ import React, { type FC, useEffect, useState } from "react";
 import { ApiContext } from "../hooks/useAPI";
 import API from "~/api/api";
 import MockApi from "~/api/mockApi";
-import ApiInterface from "~/api/apiInterface";
+import type ApiInterface from "~/api/apiInterface";
 import { useLocalAuth } from "~/hooks/useLocalAuth";
 
 interface Props {

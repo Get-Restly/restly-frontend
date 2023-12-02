@@ -1,5 +1,5 @@
-import { ApiSpec, ApiEndpoint, Tutorial } from "~/types";
-import ApiInterface from "./apiInterface";
+import { type ApiSpec, type ApiEndpoint, type Tutorial } from "~/types";
+import type ApiInterface from "./apiInterface";
 
 
 export default class MockApi implements ApiInterface {

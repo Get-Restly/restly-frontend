@@ -58,7 +58,7 @@ const ApiPicker: FC<ApiPickerProps> = ({
       <Button
         color="gray"
         onClick={() => onAutoSelect()}
-        disabled={autoSelectLoading || spec === undefined || goalsText === ""}
+        disabled={autoSelectLoading ?? spec === undefined ?? goalsText === ""}
       >
         {autoSelectLoading ? (
           <LoadingSpinner />

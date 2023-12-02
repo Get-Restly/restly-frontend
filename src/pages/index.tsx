@@ -97,9 +97,9 @@ export default function Home() {
   };
 
   const canGenerateTutorial =
-    tutorialId === undefined ||
-    goalsText === "" ||
-    apiSpecId === undefined ||
+    tutorialId === undefined ??
+    goalsText === "" ??
+    apiSpecId === undefined ??
     selectedApiEndpoints.length === 0;
 
   return (
