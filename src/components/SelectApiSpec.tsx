@@ -68,7 +68,7 @@ const SelectApiSpec: FC<SelectApiSpecProps> = ({ value, onSelect }) => {
           className="whitespace-nowrap"
           color="gray"
           onClick={handleLoadSpec}
-          disabled={loading}
+          disabled={loading || url === ""}
         >
           {loading && <LoadingSpinner />}
           {loading ? "Loading.." : "Load OpenAPI Spec"}

@@ -7,19 +7,18 @@ import { api } from "~/utils/api";
 
 import "~/styles/globals.css";
 
-
 const RestlyApp: AppType<{ session: Session | null }> = ({
   Component,
   pageProps: { session, ...pageProps },
 }) => {
   return (
-    <SessionProvider session={session}>
-      <LocalAuthProvider>
-        <APIProvider>
-          <Component {...pageProps} />
-        </APIProvider>
-      </LocalAuthProvider>
-    </SessionProvider>
+    // <SessionProvider session={session}>
+    <LocalAuthProvider>
+      <APIProvider>
+        <Component {...pageProps} />
+      </APIProvider>
+    </LocalAuthProvider>
+    // </SessionProvider>
   );
 };
 
