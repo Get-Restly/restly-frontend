@@ -1,15 +1,16 @@
 // import { signIn, signOut, useSession } from "next-auth/react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Head from "next/head";
 import { Button } from "flowbite-react";
-import ApiPicker from "~/components/ApiPicker";
 import GoalsForm from "~/components/GoalsForm";
 import MarkdownEditor from "~/components/MarkdownEditor";
 import SelectApiSpec from "~/components/SelectApiSpec";
-import { type OpenApiSpec, type ApiEndpoint } from "~/types";
+import { type OpenApiSpec, type ApiEndpoint, ApiSpec } from "~/types";
 import { SparklesIcon } from "@heroicons/react/24/solid";
 import LoadingSpinner from "~/components/LoadingSpinner";
 import { useApi } from "~/hooks/useAPI";
+import ServerSelector from "~/components/ServerSelector";
+import ApiPicker from "~/components/ApiPicker";
 
 const DEFAULT_MARKDOWN = `# Hello Editor`;
 const DEFAULT_TUTORIAL_NAME = "Draft Tutorial";
@@ -19,7 +20,7 @@ export default function Home() {
 
   const [apiSpecId, setApiSpecId] = useState<number | undefined>();
   const [goalsText, setGoalsText] = useState<string>("");
-  // const [apiSpec, setApiSpec] = useState<ApiSpec | undefined>();
+  const [apiSpec, setApiSpec] = useState<ApiSpec | undefined>();
   const [openApiSpec, setOpenApiSpec] = useState<OpenApiSpec | undefined>();
   const [selectedApiEndpoints, setSelectedApiEndpoints] = useState<
     ApiEndpoint[]
@@ -53,7 +54,7 @@ export default function Home() {
         return;
       }
       const spec = await api.loadSpec(apiSpecId);
-      // setApiSpec(spec);
+      setApiSpec(spec);
       if (spec.content) {
         const openApiSpec = JSON.parse(spec.content) as OpenApiSpec;
         setOpenApiSpec(openApiSpec);
@@ -101,6 +102,14 @@ export default function Home() {
     goalsText === "" ||
     apiSpecId === undefined ||
     selectedApiEndpoints.length === 0;
+
+  //List of servers
+  const servers: string[] = useMemo(() => {
+    if (!openApiSpec?.servers) {
+      return [];
+    }
+    return openApiSpec.servers.map((server) => server.url);
+  }, [openApiSpec]);
 
   return (
     <>
@@ -164,14 +173,17 @@ export default function Home() {
                 <h3 className="text-md font-bold">
                   Step 3: Pick relevant APIs
                 </h3>
-                <ApiPicker
-                  spec={openApiSpec}
-                  value={selectedApiEndpoints}
-                  onChange={setSelectedApiEndpoints}
-                  onAutoSelect={autoSelectApis}
-                  autoSelectLoading={autoSelectApiLoading}
-                  goalsText={goalsText}
-                />
+                <div className="flex w-full flex-col gap-4 px-2">
+                  <ApiPicker
+                    spec={openApiSpec}
+                    value={selectedApiEndpoints}
+                    onChange={setSelectedApiEndpoints}
+                    onAutoSelect={autoSelectApis}
+                    autoSelectLoading={autoSelectApiLoading}
+                    goalsText={goalsText}
+                  />
+                  <ServerSelector servers={servers} />
+                </div>
               </div>
               <div className="flex flex-col items-center self-stretch">
                 <Button
