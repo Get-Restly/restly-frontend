@@ -1,4 +1,4 @@
-import { type Session } from "next-auth";
+// import { type Session } from "next-auth";
 // import { SessionProvider } from "next-auth/react";
 import { type AppType } from "next/app";
 import { APIProvider } from "~/context/APIProvider";
@@ -23,10 +23,7 @@ if (typeof window !== "undefined") {
   });
 }
 
-const RestlyApp: AppType<{ session: Session | null }> = ({
-  Component,
-  pageProps: { session, ...pageProps },
-}) => {
+const RestlyApp: AppType = ({ Component, pageProps: { ...pageProps } }) => {
   const router = useRouter();
 
   useEffect(() => {
@@ -37,7 +34,7 @@ const RestlyApp: AppType<{ session: Session | null }> = ({
     return () => {
       router.events.off("routeChangeComplete", handleRouteChange);
     };
-  }, []);
+  });
 
   return (
     // <SessionProvider session={session}>

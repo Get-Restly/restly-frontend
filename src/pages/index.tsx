@@ -6,7 +6,7 @@ import ApiPicker from "~/components/ApiPicker";
 import GoalsForm from "~/components/GoalsForm";
 import MarkdownEditor from "~/components/MarkdownEditor";
 import SelectApiSpec from "~/components/SelectApiSpec";
-import { type ApiSpec, type OpenApiSpec, type ApiEndpoint } from "~/types";
+import { type OpenApiSpec, type ApiEndpoint } from "~/types";
 import { SparklesIcon } from "@heroicons/react/24/solid";
 import LoadingSpinner from "~/components/LoadingSpinner";
 import { useApi } from "~/hooks/useAPI";
@@ -19,7 +19,7 @@ export default function Home() {
 
   const [apiSpecId, setApiSpecId] = useState<number | undefined>();
   const [goalsText, setGoalsText] = useState<string>("");
-  const [apiSpec, setApiSpec] = useState<ApiSpec | undefined>();
+  // const [apiSpec, setApiSpec] = useState<ApiSpec | undefined>();
   const [openApiSpec, setOpenApiSpec] = useState<OpenApiSpec | undefined>();
   const [selectedApiEndpoints, setSelectedApiEndpoints] = useState<
     ApiEndpoint[]
@@ -45,7 +45,7 @@ export default function Home() {
       }
     };
     loadCurrentTutorial().catch((e) => console.error(e));
-  }, [authenticated]);
+  }, [authenticated, api]);
 
   useEffect(() => {
     const reloadSpec = async () => {
@@ -53,14 +53,14 @@ export default function Home() {
         return;
       }
       const spec = await api.loadSpec(apiSpecId);
-      setApiSpec(spec);
+      // setApiSpec(spec);
       if (spec.content) {
         const openApiSpec = JSON.parse(spec.content) as OpenApiSpec;
         setOpenApiSpec(openApiSpec);
       }
     };
     reloadSpec().catch((e) => console.error(e));
-  }, [apiSpecId]);
+  }, [apiSpecId, api]);
 
   const autoSelectApis = async () => {
     if (!apiSpecId) {
@@ -96,10 +96,10 @@ export default function Home() {
     }
   };
 
-  const canGenerateTutorial =
-    tutorialId === undefined ??
-    goalsText === "" ??
-    apiSpecId === undefined ??
+  const cannotGenerateTutorial =
+    tutorialId === undefined ||
+    goalsText === "" ||
+    apiSpecId === undefined ||
     selectedApiEndpoints.length === 0;
 
   return (
@@ -180,7 +180,7 @@ export default function Home() {
                   size="lg"
                   className="focus:ring-1 focus:ring-gray-200"
                   onClick={() => generateTutorial()}
-                  disabled={canGenerateTutorial}
+                  disabled={cannotGenerateTutorial}
                 >
                   {generatingTutorial ? (
                     <LoadingSpinner />

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { type FC, useEffect, useState } from "react";
+import React, { type FC, useEffect, useState, useCallback } from "react";
 import { Button, TextInput, Select } from "flowbite-react";
 import { type ApiSpec } from "~/types";
 import LoadingSpinner from "./LoadingSpinner";
@@ -18,17 +18,24 @@ const SelectApiSpec: FC<SelectApiSpecProps> = ({ value, onSelect }) => {
   const [url, setUrl] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
-  const reloadSpecs = async () => {
-    const specs = await api.loadSpecs();
-    setSpecs(specs);
-  };
+  const reloadSpecs = useCallback(async () => {
+    setLoading(true);
+    try {
+      const specs = await api.loadSpecs();
+      setSpecs(specs);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  }, [api]); // Add any dependencies that are required for reloadSpecs here
 
   useEffect(() => {
     if (!authenticated) {
       return;
     }
     reloadSpecs().catch((e) => console.error(e));
-  }, [authenticated]);
+  }, [authenticated, reloadSpecs]);
 
   const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     e.preventDefault();

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { type FC, useMemo } from "react";
+import React, { type FC, useMemo, useState } from "react";
 import { Button, Select } from "flowbite-react";
 import {
   type OpenApiSpec,
@@ -15,7 +15,7 @@ interface ApiPickerProps {
   value: ApiEndpoint[];
   onChange: (value: ApiEndpoint[]) => void;
   onAutoSelect: () => void;
-  autoSelectLoading?: boolean;
+  autoSelectLoading: boolean;
   goalsText: string;
 }
 
@@ -53,12 +53,28 @@ const ApiPicker: FC<ApiPickerProps> = ({
     );
   }, [value]);
 
+  //List of servers
+  const servers: string[] = useMemo(() => {
+    if (!spec?.servers) {
+      return [];
+    }
+    return spec.servers.map((server) => server.url);
+  }, [spec]);
+
+  const [serverValue, setServerValue] = useState<string>(servers[0] ?? "");
+  const handleServerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setServerValue(e.target.value);
+  };
+
+  const cannotAutoSelect =
+    autoSelectLoading || spec === undefined || goalsText === "";
+
   return (
     <div className="flex w-full flex-col gap-4 px-2">
       <Button
         color="gray"
         onClick={() => onAutoSelect()}
-        disabled={autoSelectLoading ?? spec === undefined ?? goalsText === ""}
+        disabled={cannotAutoSelect}
       >
         {autoSelectLoading ? (
           <LoadingSpinner />
@@ -83,6 +99,27 @@ const ApiPicker: FC<ApiPickerProps> = ({
               value={`${endpoint.path}#${endpoint.verb}`}
             >
               {endpoint.path} {endpoint.verb.toUpperCase()}
+            </option>
+          ))}
+        </Select>
+      </div>
+      <div>
+        <label
+          htmlFor="server"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Select server
+        </label>
+        <Select
+          id="server"
+          required
+          className="focus:ring-1 focus:ring-gray-200"
+          onChange={handleServerChange}
+          value={serverValue}
+        >
+          {servers.map((server) => (
+            <option key={server} value={server}>
+              {server}
             </option>
           ))}
         </Select>

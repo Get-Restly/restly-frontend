@@ -1,7 +1,7 @@
 import { type ApiSpec, type ApiEndpoint, type Tutorial } from "~/types";
 import type ApiInterface from "./apiInterface";
 
-
+/* eslint-disable @typescript-eslint/no-unused-vars */
 export default class MockApi implements ApiInterface {
   createSpec(url: string): Promise<number> {
     throw new Error("Method not implemented.");
@@ -21,7 +21,13 @@ export default class MockApi implements ApiInterface {
   loadTutorials(): Promise<Tutorial[]> {
     throw new Error("Method not implemented.");
   }
-  streamTutorialContent(tutorialId: number, query: string, specId: number, apis: ApiEndpoint[], update: (value: string) => void): Promise<void> {
+  streamTutorialContent(
+    tutorialId: number,
+    query: string,
+    specId: number,
+    apis: ApiEndpoint[],
+    update: (value: string) => void,
+  ): Promise<void> {
     throw new Error("Method not implemented.");
   }
 }

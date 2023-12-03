@@ -1,6 +1,5 @@
 import { API_URL } from "../constants";
 
-
 interface createUserRequest {
   email: string | null;
 }
@@ -8,7 +7,6 @@ interface createUserRequest {
 interface createUserResponse {
   token: string;
 }
-
 
 export default class AuthApi {
   static async createUser(): Promise<string> {
