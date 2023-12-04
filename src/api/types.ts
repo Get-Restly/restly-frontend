@@ -1,17 +1,22 @@
-import { type ApiEndpoint, type ApiSpec, type Tutorial } from "../types";
-
+import {
+  type OpenApiSpec,
+  type ApiEndpoint,
+  type ApiSpecResponse,
+  type Tutorial,
+} from "../types";
 
 export interface createSpecResponse {
   id: number;
   name: string;
+  spec: OpenApiSpec;
 }
 
 export interface loadSpecsResponse {
-  specs: ApiSpec[];
+  specs: ApiSpecResponse[];
 }
 
 export interface loadSpecResponse {
-  spec: ApiSpec;
+  spec: ApiSpecResponse;
 }
 
 export interface createTutorialResponse {

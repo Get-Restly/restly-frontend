@@ -1,4 +1,10 @@
-import { type ApiEndpoint, type ApiSpec, type Tutorial } from "../types";
+import {
+  type ApiSpec,
+  type ApiEndpoint,
+  type ApiSpecResponse,
+  type Tutorial,
+  type OpenApiSpec,
+} from "../types";
 import {
   type createSpecResponse,
   type loadSpecsResponse,
@@ -11,7 +17,6 @@ import { API_URL } from "../constants";
 import type ApiInterface from "./apiInterface";
 import { createChunkDecoder } from "./utils";
 
-
 export default class API implements ApiInterface {
   userToken: string;
 
@@ -19,7 +24,7 @@ export default class API implements ApiInterface {
     this.userToken = userToken;
   }
 
-  async createSpec(url: string): Promise<number> {
+  async createSpec(url: string): Promise<createSpecResponse> {
     const resp = await fetch(`${API_URL}/api/v1/specs`, {
       method: "POST",
       headers: {
@@ -29,7 +34,7 @@ export default class API implements ApiInterface {
       body: JSON.stringify({ url }),
     });
     const data = (await resp.json()) as createSpecResponse;
-    return data.id;
+    return data;
   }
 
   async loadSpecs(): Promise<ApiSpec[]> {
@@ -39,10 +44,15 @@ export default class API implements ApiInterface {
       },
     });
     const data = (await resp.json()) as loadSpecsResponse;
-    return data.specs;
+
+    const response: ApiSpec[] = data.specs.map((spec) => {
+      return { ...spec, spec: JSON.parse(spec.content ?? "") as OpenApiSpec };
+    });
+
+    return response;
   }
 
-  async loadSpec(id: number): Promise<ApiSpec> {
+  async loadSpec(id: number): Promise<ApiSpecResponse> {
     const resp = await fetch(`${API_URL}/api/v1/specs/${id}`, {
       headers: {
         Authorization: `Bearer ${this.userToken}`,
@@ -99,6 +109,7 @@ export default class API implements ApiInterface {
     query: string,
     specId: number,
     apis: ApiEndpoint[],
+    serverValue: string,
     update: (value: string) => void,
   ) {
     const resp = await fetch(
@@ -113,6 +124,7 @@ export default class API implements ApiInterface {
           query: query,
           specId: specId,
           apis: apis,
+          server: serverValue,
         }),
       },
     );

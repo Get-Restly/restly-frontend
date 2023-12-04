@@ -21,5 +21,9 @@ export const APIProvider: FC<Props> = ({ children }) => {
     }
   }, [userToken]);
 
-  return <ApiContext.Provider value={{api, authenticated}}>{children}</ApiContext.Provider>;
+  return (
+    <ApiContext.Provider value={{ api, authenticated }}>
+      {children}
+    </ApiContext.Provider>
+  );
 };

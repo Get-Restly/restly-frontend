@@ -15,7 +15,7 @@ interface ApiPickerProps {
   value: ApiEndpoint[];
   onChange: (value: ApiEndpoint[]) => void;
   onAutoSelect: () => void;
-  autoSelectLoading?: boolean;
+  autoSelectLoading: boolean;
   goalsText: string;
 }
 
@@ -53,12 +53,16 @@ const ApiPicker: FC<ApiPickerProps> = ({
     );
   }, [value]);
 
+  const cannotAutoSelect =
+    autoSelectLoading || spec === undefined || goalsText === "";
+
   return (
-    <div className="flex w-full flex-col gap-4 px-2">
+    <div>
       <Button
         color="gray"
         onClick={() => onAutoSelect()}
-        disabled={autoSelectLoading ?? spec === undefined ?? goalsText === ""}
+        disabled={cannotAutoSelect}
+        className="mb-4 w-full"
       >
         {autoSelectLoading ? (
           <LoadingSpinner />
@@ -67,26 +71,24 @@ const ApiPicker: FC<ApiPickerProps> = ({
         )}
         <span>{autoSelectText}</span>
       </Button>
-      <div>
-        <Select
-          id="api-endpoints"
-          required
-          multiple
-          className="focus:ring-1 focus:ring-gray-200"
-          onChange={handleChange}
-          value={selectValue}
-          size={Math.min(12, endpoints.length)}
-        >
-          {endpoints.map((endpoint) => (
-            <option
-              key={`${endpoint.path}#${endpoint.verb}`}
-              value={`${endpoint.path}#${endpoint.verb}`}
-            >
-              {endpoint.path} {endpoint.verb.toUpperCase()}
-            </option>
-          ))}
-        </Select>
-      </div>
+      <Select
+        id="api-endpoints"
+        required
+        multiple
+        className="focus:ring-1 focus:ring-gray-200"
+        onChange={handleChange}
+        value={selectValue}
+        size={Math.min(12, endpoints.length)}
+      >
+        {endpoints.map((endpoint) => (
+          <option
+            key={`${endpoint.path}#${endpoint.verb}`}
+            value={`${endpoint.path}#${endpoint.verb}`}
+          >
+            {endpoint.path} {endpoint.verb.toUpperCase()}
+          </option>
+        ))}
+      </Select>
     </div>
   );
 };
