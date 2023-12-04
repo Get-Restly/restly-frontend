@@ -1,65 +1,92 @@
 "use client";
 
-import React, { type FC, useEffect, useState, useCallback } from "react";
+import React, { type FC, useState } from "react";
 import { Button, TextInput, Select } from "flowbite-react";
 import { type ApiSpec } from "~/types";
 import LoadingSpinner from "./LoadingSpinner";
 import { useApi } from "~/hooks/useAPI";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface SelectApiSpecProps {
-  value: number | undefined;
-  onSelect: (value: number) => void;
+  // value: number | undefined;
+  onSelect: (value: ApiSpec) => void;
 }
 
-const SelectApiSpec: FC<SelectApiSpecProps> = ({ value, onSelect }) => {
-  const { api, authenticated } = useApi();
+const SelectApiSpec: FC<SelectApiSpecProps> = ({ onSelect }) => {
+  const { api } = useApi();
+  const queryClient = useQueryClient();
 
-  const [specs, setSpecs] = useState<ApiSpec[]>([]);
+  const {
+    isLoading: loading,
+    // isError,
+    data,
+    // error,
+  } = useQuery<ApiSpec[]>({
+    queryKey: ["specs"],
+    queryFn: async () => await api.loadSpecs(),
+  });
+  const specs = data ?? [];
+
+  // Mutations
+  const mutation = useMutation({
+    mutationFn: async (url: string) => api.createSpec(url),
+    onSuccess: async () => {
+      // Invalidate and refetch
+      await queryClient.invalidateQueries({ queryKey: ["specs"] });
+    },
+  });
+
+  //For internal state management
+  const [apiSpecId, setApiSpecId] = useState<number | undefined>();
   const [url, setUrl] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
-
-  const reloadSpecs = useCallback(async () => {
-    setLoading(true);
-    try {
-      const specs = await api.loadSpecs();
-      setSpecs(specs);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  }, [api]); // Add any dependencies that are required for reloadSpecs here
-
-  useEffect(() => {
-    if (!authenticated) {
-      return;
-    }
-    reloadSpecs().catch((e) => console.error(e));
-  }, [authenticated, reloadSpecs]);
 
   const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    console.log("e.target.value", e.target.value);
+
+    const newSelectedSpec = specs.find(
+      (spec) => spec.id === parseInt(e.target.value),
+    );
+
+    if (!newSelectedSpec) {
+      return;
+    }
+
+    onSelect(newSelectedSpec);
     e.preventDefault();
-    onSelect(parseInt(e.target.value));
   };
 
   const handleLoadSpec = async () => {
-    const specId = await api.createSpec(url);
-    await reloadSpecs();
-    onSelect(specId);
+    const response = await mutation.mutateAsync(url);
+
+    //Set this as the current spec
+    onSelect(response);
+
+    //For local component state
+    setApiSpecId(response.id);
+
+    //Clear out state
     setUrl("");
   };
 
   return (
     <div className="flex w-full flex-col gap-4 px-2">
-      <Select value={value} onChange={handleSelect}>
-        <option key={0} value={undefined}>
-          Select
-        </option>
-        {specs.map((spec) => (
-          <option key={spec.id} value={spec.id}>
-            {spec.name}
+      <Select value={apiSpecId} onChange={handleSelect}>
+        {loading ? (
+          <option disabled style={{ backgroundColor: "#e2e8f0" }}>
+            Loading specs...
           </option>
-        ))}
+        ) : (
+          <>
+            <option key={0} value="">
+              Select
+            </option>
+            {specs.map((spec) => (
+              <option key={spec.id} value={spec.id}>
+                {spec.name}
+              </option>
+            ))}
+          </>
+        )}
       </Select>
       <div className="flex w-full flex-row gap-4">
         <TextInput
@@ -75,10 +102,10 @@ const SelectApiSpec: FC<SelectApiSpecProps> = ({ value, onSelect }) => {
           className="whitespace-nowrap"
           color="gray"
           onClick={handleLoadSpec}
-          disabled={loading ?? url === ""}
+          disabled={mutation.isLoading || url === ""}
         >
-          {loading && <LoadingSpinner />}
-          {loading ? "Loading.." : "Load OpenAPI Spec"}
+          {mutation.isLoading && <LoadingSpinner />}
+          {mutation.isLoading ? "Loading.." : "Load OpenAPI Spec"}
         </Button>
       </div>
     </div>

@@ -108,11 +108,18 @@ export interface ApiEndpoint {
   verb: string;
 }
 
+export interface ApiSpecResponse {
+  id: number;
+  name: string;
+  url: string;
+  content: string; //JSON stringified OpenApiSpec
+}
+
 export interface ApiSpec {
   id: number;
   name: string;
   url?: string;
-  content?: string;
+  spec: OpenApiSpec;
 }
 
 export interface Tutorial {

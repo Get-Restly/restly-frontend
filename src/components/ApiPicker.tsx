@@ -1,6 +1,6 @@
 "use client";
 
-import React, { type FC, useMemo, useState } from "react";
+import React, { type FC, useMemo } from "react";
 import { Button, Select } from "flowbite-react";
 import {
   type OpenApiSpec,
@@ -62,6 +62,7 @@ const ApiPicker: FC<ApiPickerProps> = ({
         color="gray"
         onClick={() => onAutoSelect()}
         disabled={cannotAutoSelect}
+        className="mb-4 w-full"
       >
         {autoSelectLoading ? (
           <LoadingSpinner />

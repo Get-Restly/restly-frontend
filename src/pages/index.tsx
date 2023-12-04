@@ -5,12 +5,13 @@ import { Button } from "flowbite-react";
 import GoalsForm from "~/components/GoalsForm";
 import MarkdownEditor from "~/components/MarkdownEditor";
 import SelectApiSpec from "~/components/SelectApiSpec";
-import { type OpenApiSpec, type ApiEndpoint, ApiSpec } from "~/types";
+import { type ApiEndpoint, type ApiSpec } from "~/types";
 import { SparklesIcon } from "@heroicons/react/24/solid";
 import LoadingSpinner from "~/components/LoadingSpinner";
 import { useApi } from "~/hooks/useAPI";
 import ServerSelector from "~/components/ServerSelector";
 import ApiPicker from "~/components/ApiPicker";
+import { useMutation } from "@tanstack/react-query";
 
 const DEFAULT_MARKDOWN = `# Hello Editor`;
 const DEFAULT_TUTORIAL_NAME = "Draft Tutorial";
@@ -18,24 +19,67 @@ const DEFAULT_TUTORIAL_NAME = "Draft Tutorial";
 export default function Home() {
   const { api, authenticated } = useApi();
 
-  const [apiSpecId, setApiSpecId] = useState<number | undefined>();
+  //Hold the ID of the selected API spec
   const [goalsText, setGoalsText] = useState<string>("");
   const [apiSpec, setApiSpec] = useState<ApiSpec | undefined>();
-  const [openApiSpec, setOpenApiSpec] = useState<OpenApiSpec | undefined>();
+
+  //List of servers
+  const servers: string[] = useMemo(() => {
+    if (!apiSpec?.spec?.servers) {
+      return [];
+    }
+    return apiSpec.spec.servers.map((server) => server.url);
+  }, [apiSpec]);
+
+  const [serverValue, setServerValue] = useState<string>("");
+
+  useEffect(() => {
+    setServerValue(servers[0] ?? "");
+  }, [servers]);
+
   const [selectedApiEndpoints, setSelectedApiEndpoints] = useState<
     ApiEndpoint[]
   >([]);
+
   const [tutorialId, setTutorialId] = useState<number | undefined>();
   const [tutorialContent, setTutorialContent] =
     useState<string>(DEFAULT_MARKDOWN);
-  const [autoSelectApiLoading, setAutoSelectApiLoading] =
-    useState<boolean>(false);
-  const [generatingTutorial, setGeneratingTutorial] = useState<boolean>(false);
+
+  const generateTutorialMutation = useMutation({
+    mutationFn: async () => {
+      if (!tutorialId) {
+        throw new Error("Tutorial ID not set");
+      }
+      if (!apiSpec) {
+        throw new Error("API Spec not set");
+      }
+      await api.streamTutorialContent(
+        tutorialId,
+        goalsText,
+        apiSpec.id,
+        selectedApiEndpoints,
+        serverValue,
+        (content: string) => setTutorialContent(content),
+      );
+
+      //Note: We return an empty string because without it isLoading stays true
+      return "";
+    },
+  });
+
+  const autoSelectApisMutation = useMutation({
+    mutationFn: async (apiSpecId: number) => {
+      if (!apiSpecId) {
+        throw new Error("API Spec ID not set");
+      }
+      return await api.loadRelevantApis(apiSpecId, goalsText);
+    },
+    onSuccess: (relevantApis) => {
+      setSelectedApiEndpoints(relevantApis);
+    },
+  });
 
   useEffect(() => {
-    if (!authenticated) {
-      return;
-    }
     const loadCurrentTutorial = async () => {
       const tutorials = await api.loadTutorials();
       if (tutorials.length > 0 && tutorials[0]) {
@@ -46,70 +90,26 @@ export default function Home() {
       }
     };
     loadCurrentTutorial().catch((e) => console.error(e));
-  }, [authenticated, api]);
+  }, [api]);
 
-  useEffect(() => {
-    const reloadSpec = async () => {
-      if (!apiSpecId) {
-        return;
-      }
-      const spec = await api.loadSpec(apiSpecId);
-      setApiSpec(spec);
-      if (spec.content) {
-        const openApiSpec = JSON.parse(spec.content) as OpenApiSpec;
-        setOpenApiSpec(openApiSpec);
-      }
-    };
-    reloadSpec().catch((e) => console.error(e));
-  }, [apiSpecId, api]);
-
-  const autoSelectApis = async () => {
-    if (!apiSpecId) {
-      throw new Error("API Spec ID not set");
-    }
-    try {
-      setAutoSelectApiLoading(true);
-      const relevantApis = await api.loadRelevantApis(apiSpecId, goalsText);
-      setSelectedApiEndpoints(relevantApis);
-    } finally {
-      setAutoSelectApiLoading(false);
+  const autoSelectApis = () => {
+    if (apiSpec) {
+      autoSelectApisMutation.mutate(apiSpec.id);
     }
   };
 
   const generateTutorial = async () => {
-    if (!tutorialId) {
-      throw new Error("Tutorial ID not set");
-    }
-    if (!apiSpecId) {
-      throw new Error("API Spec ID not set");
-    }
-    try {
-      setGeneratingTutorial(true);
-      await api.streamTutorialContent(
-        tutorialId,
-        goalsText,
-        apiSpecId,
-        selectedApiEndpoints,
-        (content: string) => setTutorialContent(content),
-      );
-    } finally {
-      setGeneratingTutorial(false);
-    }
+    await generateTutorialMutation.mutateAsync();
   };
 
   const cannotGenerateTutorial =
     tutorialId === undefined ||
     goalsText === "" ||
-    apiSpecId === undefined ||
-    selectedApiEndpoints.length === 0;
+    apiSpec === undefined ||
+    selectedApiEndpoints.length === 0 ||
+    generateTutorialMutation.isLoading;
 
-  //List of servers
-  const servers: string[] = useMemo(() => {
-    if (!openApiSpec?.servers) {
-      return [];
-    }
-    return openApiSpec.servers.map((server) => server.url);
-  }, [openApiSpec]);
+  console.log(generateTutorialMutation.isLoading, "loading");
 
   return (
     <>
@@ -145,102 +145,89 @@ export default function Home() {
           </div>
         </div>
         {/* Body container */}
-        <div className="flex w-full flex-1 flex-col justify-start gap-8 px-8 py-4">
-          {/* Two column layout */}
-          <div className="flex h-full flex-col justify-start gap-16 md:flex-row">
-            {/* Column 1 */}
-            <div className="flex w-full flex-col items-start justify-start gap-4 md:w-1/3">
-              <h1 className="text-xl font-bold">Magic Tutorial Creator</h1>
-              <div className="text-md">
-                We use AI to generate a user-friendly tutorial for your API.
-                Just input your OpenAPI spec and your goals for the tutorial,
-                and we&apos;ll do the rest!
-              </div>
-              <h2 className="text-xl font-bold">Instructions</h2>
-              <div className="flex flex-col items-start justify-start gap-4 self-stretch">
-                <h3 className="text-md font-bold">
-                  Step 1: Select your OpenAPI Spec
-                </h3>
-                <SelectApiSpec value={apiSpecId} onSelect={setApiSpecId} />
-              </div>
-              <div className="flex flex-col items-start justify-start gap-4 self-stretch">
-                <h3 className="text-md font-bold">
-                  Step 2: Write your goals for the tutorial
-                </h3>
-                <GoalsForm value={goalsText} onChange={setGoalsText} />
-              </div>
-              <div className="flex flex-col items-start justify-start gap-4 self-stretch">
-                <h3 className="text-md font-bold">
-                  Step 3: Pick relevant APIs
-                </h3>
-                <div className="flex w-full flex-col gap-4 px-2">
-                  <ApiPicker
-                    spec={openApiSpec}
-                    value={selectedApiEndpoints}
-                    onChange={setSelectedApiEndpoints}
-                    onAutoSelect={autoSelectApis}
-                    autoSelectLoading={autoSelectApiLoading}
-                    goalsText={goalsText}
-                  />
-                  <ServerSelector servers={servers} />
+
+        {!authenticated ? (
+          <LoadingSpinner />
+        ) : (
+          <div className="flex w-full flex-1 flex-col justify-start gap-8 px-8 py-4">
+            {/* Two column layout */}
+            <div className="flex h-full flex-col justify-start gap-16 md:flex-row">
+              {/* Column 1 */}
+              <div className="flex w-full flex-col items-start justify-start gap-4 md:w-1/3">
+                <h1 className="text-xl font-bold">Magic Tutorial Creator</h1>
+                <div className="text-md">
+                  We use AI to generate a user-friendly tutorial for your API.
+                  Just input your OpenAPI spec and your goals for the tutorial,
+                  and we&apos;ll do the rest!
+                </div>
+                <h2 className="text-xl font-bold">Instructions</h2>
+                <div className="flex flex-col items-start justify-start gap-4 self-stretch">
+                  <h3 className="text-md font-bold">
+                    Step 1: Select your OpenAPI Spec
+                  </h3>
+                  <SelectApiSpec onSelect={setApiSpec} />
+                </div>
+                <div className="flex flex-col items-start justify-start gap-4 self-stretch">
+                  <h3 className="text-md font-bold">
+                    Step 2: Write your goals for the tutorial
+                  </h3>
+                  <GoalsForm value={goalsText} onChange={setGoalsText} />
+                </div>
+                <div className="flex flex-col items-start justify-start gap-4 self-stretch">
+                  <h3 className="text-md font-bold">
+                    Step 3: Pick relevant APIs
+                  </h3>
+                  <div className="flex w-full flex-col gap-4 px-2">
+                    <ApiPicker
+                      spec={apiSpec?.spec}
+                      value={selectedApiEndpoints}
+                      onChange={setSelectedApiEndpoints}
+                      onAutoSelect={autoSelectApis}
+                      autoSelectLoading={autoSelectApisMutation.isLoading}
+                      goalsText={goalsText}
+                    />
+                    <ServerSelector
+                      serverValue={serverValue}
+                      setServerValue={setServerValue}
+                      servers={servers}
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-col items-center self-stretch">
+                  <Button
+                    color="blue"
+                    type="submit"
+                    size="lg"
+                    className="focus:ring-1 focus:ring-gray-200"
+                    onClick={() => generateTutorial()}
+                    disabled={cannotGenerateTutorial}
+                  >
+                    {generateTutorialMutation.isLoading ? (
+                      <LoadingSpinner />
+                    ) : (
+                      <SparklesIcon className="mr-1 h-5 w-5" />
+                    )}
+                    <span className="text-lg">
+                      {generateTutorialMutation.isLoading
+                        ? "Generating..."
+                        : "Generate tutorial"}
+                    </span>
+                  </Button>
                 </div>
               </div>
-              <div className="flex flex-col items-center self-stretch">
-                <Button
-                  color="blue"
-                  type="submit"
-                  size="lg"
-                  className="focus:ring-1 focus:ring-gray-200"
-                  onClick={() => generateTutorial()}
-                  disabled={cannotGenerateTutorial}
-                >
-                  {generatingTutorial ? (
-                    <LoadingSpinner />
-                  ) : (
-                    <SparklesIcon className="mr-1 h-5 w-5" />
-                  )}
-                  <span className="text-lg">
-                    {generatingTutorial ? "Generating..." : "Generate tutorial"}
-                  </span>
-                </Button>
-              </div>
-            </div>
-            {/* Column 2 */}
-            <div className="flex flex-col items-start justify-start gap-4 md:flex-1">
-              <div className="h-96 w-full md:flex-1">
-                <MarkdownEditor
-                  text={tutorialContent}
-                  setText={setTutorialContent}
-                />
+              {/* Column 2 */}
+              <div className="flex flex-col items-start justify-start gap-4 md:flex-1">
+                <div className="h-96 w-full md:flex-1">
+                  <MarkdownEditor
+                    text={tutorialContent}
+                    setText={setTutorialContent}
+                  />
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </>
   );
 }
-
-// function AuthShowcase() {
-//   const { data: sessionData } = useSession();
-
-//   const { data: secretMessage } = api.post.getSecretMessage.useQuery(
-//     undefined, // no input
-//     { enabled: sessionData?.user !== undefined },
-//   );
-
-//   return (
-//     <div className="flex flex-col items-center justify-center gap-4">
-//       <p className="text-center text-2xl text-white">
-//         {sessionData && <span>Logged in as {sessionData.user?.name}</span>}
-//         {secretMessage && <span> - {secretMessage}</span>}
-//       </p>
-//       <button
-//         className="rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
-//         onClick={sessionData ? () => void signOut() : () => void signIn()}
-//       >
-//         {sessionData ? "Sign out" : "Sign in"}
-//       </button>
-//     </div>
-//   );
-// }

@@ -1,12 +1,18 @@
 import { Select } from "flowbite-react";
-import React, { useState } from "react";
+import React from "react";
 
 type ServerSelectorProps = {
   servers: string[];
+  serverValue: string;
+  setServerValue: (value: string) => void;
 };
 
-const ServerSelector: React.FC<ServerSelectorProps> = ({ servers }) => {
-  const [serverValue, setServerValue] = useState<string>(servers[0] ?? "");
+const ServerSelector: React.FC<ServerSelectorProps> = ({
+  servers,
+  serverValue,
+  setServerValue,
+}) => {
+  // const [serverValue, setServerValue] = useState<string>(servers[0] ?? "");
   const handleServerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setServerValue(e.target.value);
   };
