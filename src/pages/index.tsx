@@ -109,8 +109,6 @@ export default function Home() {
     selectedApiEndpoints.length === 0 ||
     generateTutorialMutation.isLoading;
 
-  console.log(generateTutorialMutation.isLoading, "loading");
-
   return (
     <>
       <Head>
