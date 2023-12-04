@@ -9,7 +9,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface SelectApiSpecProps {
   // value: number | undefined;
-  onSelect: (value: ApiSpec) => void;
+  onSelect: (value: ApiSpec | undefined) => void;
 }
 
 const SelectApiSpec: FC<SelectApiSpecProps> = ({ onSelect }) => {
@@ -41,13 +41,12 @@ const SelectApiSpec: FC<SelectApiSpecProps> = ({ onSelect }) => {
   const [url, setUrl] = useState<string>("");
 
   const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    console.log("e.target.value", e.target.value);
-
     const newSelectedSpec = specs.find(
       (spec) => spec.id === parseInt(e.target.value),
     );
 
     if (!newSelectedSpec) {
+      onSelect(undefined);
       return;
     }
 
