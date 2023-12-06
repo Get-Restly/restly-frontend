@@ -12,7 +12,7 @@ interface Props {
 export const LocalAuthProvider: FC<Props> = ({ children }) => {
   const [mutex] = useState(() => new Mutex());
   const [userToken, setUserToken] = useState<string | null>(null);
-  
+
   const initUserToken = async () => {
     const token = localStorage.getItem(RESTLY_TOKEN);
     if (token) {
@@ -24,20 +24,26 @@ export const LocalAuthProvider: FC<Props> = ({ children }) => {
     }
     localStorage.setItem(RESTLY_TOKEN, newToken);
     return newToken;
-  }
-  
+  };
+
   useEffect(() => {
     if (!mutex) {
       return;
     }
-    mutex.runExclusive(
-      async () => {
+    mutex
+      .runExclusive(async () => {
         const token = await initUserToken();
         setUserToken(token);
-      }
-    ).catch((e) => console.error(e));
+      })
+      .catch((error: unknown) => {
+        if (error instanceof Error) {
+          console.error(error.message);
+        } else {
+          console.error("An unexpected error occurred");
+        }
+      });
   }, [mutex]);
-    
+
   return (
     <LocalAuthContext.Provider value={{ userToken }}>
       {children}

@@ -95,7 +95,9 @@ const SelectApiSpec: FC<SelectApiSpecProps> = ({ onSelect }) => {
           required
           className="w-full"
           value={url}
-          onChange={(e) => setUrl(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setUrl(e.target.value)
+          }
         />
         <Button
           className="whitespace-nowrap"

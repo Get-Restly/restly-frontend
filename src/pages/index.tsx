@@ -15,6 +15,7 @@ import { useMutation } from "@tanstack/react-query";
 
 const DEFAULT_MARKDOWN = `# Hello Editor`;
 const DEFAULT_TUTORIAL_NAME = "Draft Tutorial";
+const DEFAULT_SERVER_VALUE = "<Infer from OpenAPI spec>";
 
 export default function Home() {
   const { api, authenticated } = useApi();
@@ -31,10 +32,10 @@ export default function Home() {
     return apiSpec.spec.servers.map((server) => server.url);
   }, [apiSpec]);
 
-  const [serverValue, setServerValue] = useState<string>("");
+  const [serverValue, setServerValue] = useState<string>(DEFAULT_SERVER_VALUE);
 
   useEffect(() => {
-    setServerValue(servers[0] ?? "");
+    setServerValue(servers[0] ?? DEFAULT_SERVER_VALUE);
   }, [servers]);
 
   const [selectedApiEndpoints, setSelectedApiEndpoints] = useState<

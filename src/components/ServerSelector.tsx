@@ -12,7 +12,6 @@ const ServerSelector: React.FC<ServerSelectorProps> = ({
   serverValue,
   setServerValue,
 }) => {
-  // const [serverValue, setServerValue] = useState<string>(servers[0] ?? "");
   const handleServerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setServerValue(e.target.value);
   };
