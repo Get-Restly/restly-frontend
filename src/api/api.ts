@@ -46,7 +46,8 @@ export default class API implements ApiInterface {
     const data = (await resp.json()) as loadSpecsResponse;
 
     const response: ApiSpec[] = data.specs.map((spec) => {
-      return { ...spec, spec: JSON.parse(spec.content ?? "") as OpenApiSpec };
+      const { content, ...rest } = spec;
+      return { ...rest, spec: JSON.parse(content ?? "{}") as OpenApiSpec };
     });
 
     return response;
