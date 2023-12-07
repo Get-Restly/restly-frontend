@@ -12,6 +12,7 @@ import { useApi } from "~/hooks/useAPI";
 import ServerSelector from "~/components/ServerSelector";
 import ApiPicker from "~/components/ApiPicker";
 import { useMutation } from "@tanstack/react-query";
+import useCopyToClipboard from "~/hooks/copyToClipboard";
 
 const DEFAULT_MARKDOWN = `# Hello Editor`;
 const DEFAULT_TUTORIAL_NAME = "Draft Tutorial";
@@ -109,6 +110,8 @@ export default function Home() {
     apiSpec === undefined ||
     selectedApiEndpoints.length === 0 ||
     generateTutorialMutation.isLoading;
+
+  useCopyToClipboard(tutorialContent);
 
   return (
     <>
