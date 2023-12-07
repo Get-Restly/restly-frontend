@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 
 const useCopyToClipboard = (tutorialContent: string) => {
   useEffect(() => {
@@ -30,7 +30,7 @@ const useCopyToClipboard = (tutorialContent: string) => {
       if (element) {
         const codeBlockSpan = element.querySelector("span.code-block");
         const textToCopy = codeBlockSpan ? codeBlockSpan.textContent : "";
-        copyText(textToCopy || "");
+        copyText(textToCopy ?? "");
       }
     };
 
