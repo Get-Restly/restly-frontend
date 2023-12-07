@@ -23,6 +23,7 @@
     "@trpc/next": "^10.37.1",
     "@trpc/react-query": "^10.37.1",
     "@trpc/server": "^10.37.1",
+    "@uiw/react-md-editor": "^4.0.1",
     "async-mutex": "^0.4.0",
     "flowbite": "^2.1.1",
     "flowbite-react": "^0.6.4",
