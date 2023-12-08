@@ -62,7 +62,7 @@ const ApiPicker: FC<ApiPickerProps> = ({
         color="gray"
         onClick={() => onAutoSelect()}
         disabled={cannotAutoSelect}
-        className="mb-4 w-full"
+        className="mb-4 w-full tour-fourth"
       >
         {autoSelectLoading ? (
           <LoadingSpinner />
