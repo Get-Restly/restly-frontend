@@ -93,14 +93,14 @@ const SelectApiSpec: FC<SelectApiSpecProps> = ({ onSelect }) => {
           type="text"
           placeholder="Enter OpenAPI Spec URL"
           required
-          className="w-full"
+          className="w-full tour-first"
           value={url}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setUrl(e.target.value)
           }
         />
         <Button
-          className="whitespace-nowrap"
+          className="whitespace-nowrap tour-second"
           color="gray"
           onClick={handleLoadSpec}
           disabled={mutation.isLoading || url === ""}

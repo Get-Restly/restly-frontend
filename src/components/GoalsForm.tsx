@@ -17,6 +17,7 @@ const GoalsForm: FC<GoalsFormProps> = ({ value, onChange }) => {
     <div className="flex w-full flex-col gap-4 px-2">
       <Textarea
         id="goals"
+        className="tour-thrid"
         placeholder="Help me write a tutorial for an e-commerce store XYZ"
         rows={12}
         required

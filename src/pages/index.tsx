@@ -1,5 +1,5 @@
 // import { signIn, signOut, useSession } from "next-auth/react";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useContext } from "react";
 import Head from "next/head";
 import { Button } from "flowbite-react";
 import GoalsForm from "~/components/GoalsForm";
@@ -13,10 +13,35 @@ import ServerSelector from "~/components/ServerSelector";
 import ApiPicker from "~/components/ApiPicker";
 import { useMutation } from "@tanstack/react-query";
 import useCopyToClipboard from "~/hooks/copyToClipboard";
+import { ShepherdTour, ShepherdTourContext } from 'react-shepherd';
+import steps from "~/tour/steps";
+
+import "shepherd.js/dist/css/shepherd.css";
+
+const tourOptions = {
+  defaultStepOptions: {
+    cancelIcon: {
+      enabled: true
+    }
+  },
+  useModalOverlay: true
+};
 
 const DEFAULT_MARKDOWN = `# Hello Editor`;
 const DEFAULT_TUTORIAL_NAME = "Draft Tutorial";
 const DEFAULT_SERVER_VALUE = "<Infer from OpenAPI spec>";
+
+const StartTourButton = () => {
+  const tour = useContext(ShepherdTourContext);
+  return (
+    <button
+      className="absolute top-0 right-0 mt-4 mr-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md"
+      onClick={() => tour?.start()}
+    >
+      Start Tour
+    </button>
+  )
+}
 
 export default function Home() {
   const { api, authenticated } = useApi();
@@ -151,6 +176,8 @@ export default function Home() {
         {!authenticated ? (
           <LoadingSpinner />
         ) : (
+          <ShepherdTour tourOptions={tourOptions} steps={steps}>
+            <StartTourButton />
           <div className="flex w-full flex-1 flex-col justify-start gap-8 px-8 py-4">
             {/* Two column layout */}
             <div className="flex h-full flex-col justify-start gap-16 md:flex-row">
@@ -200,7 +227,7 @@ export default function Home() {
                     color="blue"
                     type="submit"
                     size="lg"
-                    className="focus:ring-1 focus:ring-gray-200"
+                    className="focus:ring-1 focus:ring-gray-200 tour-fifth"
                     onClick={() => generateTutorial()}
                     disabled={cannotGenerateTutorial}
                   >
@@ -228,6 +255,7 @@ export default function Home() {
               </div>
             </div>
           </div>
+          </ShepherdTour>
         )}
       </div>
     </>
