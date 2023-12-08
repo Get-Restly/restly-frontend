@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { type FC } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 
 export const VOCODE_OPENAPI_URL = "https://raw.githubusercontent.com/vocodedev/vocode-python/main/docs/openapi.json";

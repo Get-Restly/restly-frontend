@@ -10,7 +10,7 @@ const steps: Array<ShepherdOptionsWithType> = [
           classes: 'shepherd-button-primary',
           text: 'Copy URL',
           action() {
-            navigator.clipboard.writeText(VOCODE_OPENAPI_URL);
+            navigator.clipboard.writeText(VOCODE_OPENAPI_URL).catch((err) => console.error(err));
           },
         },
         {
@@ -76,7 +76,7 @@ const steps: Array<ShepherdOptionsWithType> = [
             classes: 'shepherd-button-primary',
             text: 'Copy Text',
             action() {
-              navigator.clipboard.writeText(GOALS_TEXT);
+              navigator.clipboard.writeText(GOALS_TEXT).catch((err) => console.error(err));
             },
           },
           {
