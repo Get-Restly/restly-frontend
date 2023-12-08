@@ -13,7 +13,7 @@ import ServerSelector from "~/components/ServerSelector";
 import ApiPicker from "~/components/ApiPicker";
 import { useMutation } from "@tanstack/react-query";
 import useCopyToClipboard from "~/hooks/copyToClipboard";
-import { ShepherdTour, ShepherdTourContext } from 'react-shepherd';
+import { ShepherdTour, ShepherdTourContext } from "react-shepherd";
 import steps from "~/tour/steps";
 
 import "shepherd.js/dist/css/shepherd.css";
@@ -21,10 +21,10 @@ import "shepherd.js/dist/css/shepherd.css";
 const tourOptions = {
   defaultStepOptions: {
     cancelIcon: {
-      enabled: true
-    }
+      enabled: true,
+    },
   },
-  useModalOverlay: true
+  useModalOverlay: true,
 };
 
 const DEFAULT_MARKDOWN = `# Hello Editor`;
@@ -35,13 +35,13 @@ const StartTourButton = () => {
   const tour = useContext(ShepherdTourContext);
   return (
     <button
-      className="absolute top-0 right-0 mt-4 mr-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md"
+      className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
       onClick={() => tour?.start()}
     >
-      Start Tour
+      Start Guided Tour
     </button>
-  )
-}
+  );
+};
 
 export default function Home() {
   const { api, authenticated } = useApi();
@@ -149,7 +149,7 @@ export default function Home() {
       <div className="flex h-screen w-full flex-col">
         {/* Header */}
         <div className="flex h-16 w-full flex-col items-start justify-start border-b border-gray-200">
-          <div className="flex items-center justify-start self-stretch px-8 py-4">
+          <div className="flex items-center justify-between self-stretch px-8 py-4">
             <div className="flex items-center justify-start gap-2">
               <svg
                 className="relative h-6 w-6 text-gray-800 opacity-30 dark:text-white"
@@ -169,6 +169,7 @@ export default function Home() {
               </svg>
               <div className="px-2 text-xl font-bold">Restly</div>
             </div>
+            <StartTourButton />
           </div>
         </div>
         {/* Body container */}
@@ -177,84 +178,83 @@ export default function Home() {
           <LoadingSpinner />
         ) : (
           <ShepherdTour tourOptions={tourOptions} steps={steps}>
-            <StartTourButton />
-          <div className="flex w-full flex-1 flex-col justify-start gap-8 px-8 py-4">
-            {/* Two column layout */}
-            <div className="flex h-full flex-col justify-start gap-16 md:flex-row">
-              {/* Column 1 */}
-              <div className="flex w-full flex-col items-start justify-start gap-4 md:w-1/3">
-                <h1 className="text-xl font-bold">Magic Tutorial Creator</h1>
-                <div className="text-md">
-                  We use AI to generate a user-friendly tutorial for your API.
-                  Just input your OpenAPI spec and your goals for the tutorial,
-                  and we&apos;ll do the rest!
+            <div className="flex w-full flex-1 flex-col justify-start gap-8 px-8 py-4">
+              {/* Two column layout */}
+              <div className="flex h-full flex-col justify-start gap-16 md:flex-row">
+                {/* Column 1 */}
+                <div className="flex w-full flex-col items-start justify-start gap-4 md:w-1/3">
+                  <h1 className="text-xl font-bold">Magic Tutorial Creator</h1>
+                  <div className="text-md">
+                    We use AI to generate a user-friendly tutorial for your API.
+                    Just input your OpenAPI spec and your goals for the
+                    tutorial, and we&apos;ll do the rest!
+                  </div>
+                  <h2 className="text-xl font-bold">Instructions</h2>
+                  <div className="flex flex-col items-start justify-start gap-4 self-stretch">
+                    <h3 className="text-md font-bold">
+                      Step 1: Select your OpenAPI Spec
+                    </h3>
+                    <SelectApiSpec onSelect={setApiSpec} />
+                  </div>
+                  <div className="flex flex-col items-start justify-start gap-4 self-stretch">
+                    <h3 className="text-md font-bold">
+                      Step 2: Write your goals for the tutorial
+                    </h3>
+                    <GoalsForm value={goalsText} onChange={setGoalsText} />
+                  </div>
+                  <div className="flex flex-col items-start justify-start gap-4 self-stretch">
+                    <h3 className="text-md font-bold">
+                      Step 3: Pick relevant APIs
+                    </h3>
+                    <div className="flex w-full flex-col gap-4 px-2">
+                      <ApiPicker
+                        spec={apiSpec?.spec}
+                        value={selectedApiEndpoints}
+                        onChange={setSelectedApiEndpoints}
+                        onAutoSelect={autoSelectApis}
+                        autoSelectLoading={autoSelectApisMutation.isLoading}
+                        goalsText={goalsText}
+                      />
+                      <ServerSelector
+                        serverValue={serverValue}
+                        setServerValue={setServerValue}
+                        servers={servers}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-center self-stretch">
+                    <Button
+                      color="blue"
+                      type="submit"
+                      size="lg"
+                      className="tour-fifth focus:ring-1 focus:ring-gray-200"
+                      onClick={() => generateTutorial()}
+                      disabled={cannotGenerateTutorial}
+                    >
+                      {generateTutorialMutation.isLoading ? (
+                        <LoadingSpinner />
+                      ) : (
+                        <SparklesIcon className="mr-1 h-5 w-5" />
+                      )}
+                      <span className="text-lg">
+                        {generateTutorialMutation.isLoading
+                          ? "Generating..."
+                          : "Generate tutorial"}
+                      </span>
+                    </Button>
+                  </div>
                 </div>
-                <h2 className="text-xl font-bold">Instructions</h2>
-                <div className="flex flex-col items-start justify-start gap-4 self-stretch">
-                  <h3 className="text-md font-bold">
-                    Step 1: Select your OpenAPI Spec
-                  </h3>
-                  <SelectApiSpec onSelect={setApiSpec} />
-                </div>
-                <div className="flex flex-col items-start justify-start gap-4 self-stretch">
-                  <h3 className="text-md font-bold">
-                    Step 2: Write your goals for the tutorial
-                  </h3>
-                  <GoalsForm value={goalsText} onChange={setGoalsText} />
-                </div>
-                <div className="flex flex-col items-start justify-start gap-4 self-stretch">
-                  <h3 className="text-md font-bold">
-                    Step 3: Pick relevant APIs
-                  </h3>
-                  <div className="flex w-full flex-col gap-4 px-2">
-                    <ApiPicker
-                      spec={apiSpec?.spec}
-                      value={selectedApiEndpoints}
-                      onChange={setSelectedApiEndpoints}
-                      onAutoSelect={autoSelectApis}
-                      autoSelectLoading={autoSelectApisMutation.isLoading}
-                      goalsText={goalsText}
-                    />
-                    <ServerSelector
-                      serverValue={serverValue}
-                      setServerValue={setServerValue}
-                      servers={servers}
+                {/* Column 2 */}
+                <div className="flex flex-col items-start justify-start gap-4 md:flex-1">
+                  <div className="h-96 w-full md:flex-1">
+                    <MarkdownEditor
+                      text={tutorialContent}
+                      setText={setTutorialContent}
                     />
                   </div>
                 </div>
-                <div className="flex flex-col items-center self-stretch">
-                  <Button
-                    color="blue"
-                    type="submit"
-                    size="lg"
-                    className="focus:ring-1 focus:ring-gray-200 tour-fifth"
-                    onClick={() => generateTutorial()}
-                    disabled={cannotGenerateTutorial}
-                  >
-                    {generateTutorialMutation.isLoading ? (
-                      <LoadingSpinner />
-                    ) : (
-                      <SparklesIcon className="mr-1 h-5 w-5" />
-                    )}
-                    <span className="text-lg">
-                      {generateTutorialMutation.isLoading
-                        ? "Generating..."
-                        : "Generate tutorial"}
-                    </span>
-                  </Button>
-                </div>
-              </div>
-              {/* Column 2 */}
-              <div className="flex flex-col items-start justify-start gap-4 md:flex-1">
-                <div className="h-96 w-full md:flex-1">
-                  <MarkdownEditor
-                    text={tutorialContent}
-                    setText={setTutorialContent}
-                  />
-                </div>
               </div>
             </div>
-          </div>
           </ShepherdTour>
         )}
       </div>
