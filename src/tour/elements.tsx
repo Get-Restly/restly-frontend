@@ -5,6 +5,7 @@ export const VOCODE_OPENAPI_URL = "https://raw.githubusercontent.com/vocodedev/v
 
 export const GOALS_TEXT = `We are going to create a tutorial that sets up an automated agent that talks like Yoda and makes references from the Star Wars movies.
 Use the $VOCODE_API_KEY for the API calls which require authentication.
+Generate CURL commands for each step.
 
 Here is what we need to cover:
 1. Create a prompt which gives the instructions to act and speak like Yoda from Star Wars.
