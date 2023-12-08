@@ -142,8 +142,37 @@ export default function Home() {
     <>
       <Head>
         <title>Restly</title>
-        <meta name="description" content="Restly" />
         <link rel="icon" href="/favicon.ico" />
+        <meta
+          name="description"
+          content="Fastest way to generate tutorials from your OpenAPI spec using GPT-4"
+        />
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="https://getrestly.com" />
+        <meta
+          name="twitter:title"
+          content="Restly - AI-powered API Tutorial Generator"
+        />
+        <meta
+          name="twitter:description"
+          content="Fastest way to generate tutorials from your OpenAPI spec using GPT-4"
+        />
+        <meta name="twitter:image" content="/screenshot.png" />
+
+        {/* LinkedIn */}
+        <meta
+          property="og:title"
+          content="Restly - AI-powered API Tutorial Generator"
+        />
+        <meta property="og:image" content="/screenshot.png" />
+        <meta property="og:url" content="https://getrestly.com" />
+        <meta
+          property="og:description"
+          content="Fastest way to generate tutorials from your OpenAPI spec using GPT-4"
+        />
+        <meta property="og:type" content="website" />
       </Head>
       {/* Page container */}
       <div className="flex h-screen w-full flex-col">
