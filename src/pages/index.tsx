@@ -147,37 +147,36 @@ export default function Home() {
       </Head>
       {/* Page container */}
       <div className="flex h-screen w-full flex-col">
-        {/* Header */}
-        <div className="flex h-16 w-full flex-col items-start justify-start border-b border-gray-200">
-          <div className="flex items-center justify-between self-stretch px-8 py-4">
-            <div className="flex items-center justify-start gap-2">
-              <svg
-                className="relative h-6 w-6 text-gray-800 opacity-30 dark:text-white"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 20 16"
-              >
-                {" "}
-                <path
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M5 4 1 8l4 4m10-8 4 4-4 4M11 1 9 15"
-                />{" "}
-              </svg>
-              <div className="px-2 text-xl font-bold">Restly</div>
-            </div>
-            <StartTourButton />
-          </div>
-        </div>
-        {/* Body container */}
-
         {!authenticated ? (
           <LoadingSpinner />
         ) : (
+          // {/* Header */}
           <ShepherdTour tourOptions={tourOptions} steps={steps}>
+            <div className="flex h-16 w-full flex-col items-start justify-start border-b border-gray-200">
+              <div className="flex items-center justify-between self-stretch px-8 py-4">
+                <div className="flex items-center justify-start gap-2">
+                  <svg
+                    className="relative h-6 w-6 text-gray-800 opacity-30 dark:text-white"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 20 16"
+                  >
+                    {" "}
+                    <path
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M5 4 1 8l4 4m10-8 4 4-4 4M11 1 9 15"
+                    />{" "}
+                  </svg>
+                  <div className="px-2 text-xl font-bold">Restly</div>
+                </div>
+                <StartTourButton />
+              </div>
+            </div>
+            {/* Body container */}
             <div className="flex w-full flex-1 flex-col justify-start gap-8 px-8 py-4">
               {/* Two column layout */}
               <div className="flex h-full flex-col justify-start gap-16 md:flex-row">
